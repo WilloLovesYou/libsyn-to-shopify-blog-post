@@ -103,7 +103,7 @@
 
         <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
             Created by Willo Sana • <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;">EvolveYourGenius.com</a>
-            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:47 PM (Chiang Mai)</div>
+            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:48 PM (Chiang Mai)</div>
         </footer>
     </div>
 
@@ -152,7 +152,9 @@
         
         // Extract topic - handle "#1" or "1" format at start (longer limit for better SEO)
         var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
-        var topic = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
+        var topicRaw = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
+        // Capitalize first letter of topic
+        var topic = topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
 
         // URL handle - strip leading numbers from topic, truncate at word boundary
         var uhTopicClean = topic.replace(/^#?\d+\s*/, ''); // remove leading episode number
@@ -188,7 +190,9 @@
         // SEO Title - two options: full branding vs more keywords
         var seoSuffix1 = ' | Your Colorful Path Podcast';
         var seoSuffix2 = ' | Your Colorful Path'; // shorter for longer topics
-        var seoPrefix = guestName ? (guestName + ' on ' + topic) : topic;
+        var seoPrefixRaw = guestName ? (guestName + ' on ' + topic) : topic;
+        // Ensure capitalization
+        var seoPrefix = seoPrefixRaw.charAt(0).toUpperCase() + seoPrefixRaw.slice(1);
 
         // Option 1: Full branding (truncate topic if needed)
         var seoTitle1 = seoPrefix + seoSuffix1;
