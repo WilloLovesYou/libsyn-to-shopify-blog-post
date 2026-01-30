@@ -173,9 +173,17 @@
         // Alt text
         var altText = 'Your Colorful Path Podcast Episode ' + en + ' with Charu Boeckel';
         
-        // SEO Title
-        var seoTitle = guestName ? (guestName + ' on ' + topic + ' | Your Colorful Path with Charu Podcast') : (topic + ' | Your Colorful Path with Charu Podcast');
-        if (seoTitle.length > 60) seoTitle = seoTitle.substring(0, 57) + '...';
+        // SEO Title - truncate at word boundary
+        var seoSuffix = ' | Your Colorful Path Podcast';
+        var seoPrefix = guestName ? (guestName + ' on ' + topic) : topic;
+        var seoTitle = seoPrefix + seoSuffix;
+        if (seoTitle.length > 60) {
+            var maxPrefix = 60 - seoSuffix.length - 3; // room for "..."
+            var truncated = seoPrefix.substring(0, maxPrefix);
+            var lastSpace = truncated.lastIndexOf(' ');
+            if (lastSpace > 10) truncated = truncated.substring(0, lastSpace);
+            seoTitle = truncated + '...' + seoSuffix;
+        }
         
         // YouTube embed
         var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
