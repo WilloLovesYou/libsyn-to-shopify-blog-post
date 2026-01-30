@@ -103,7 +103,7 @@
 
         <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
             Created by Willo Sana • <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;">EvolveYourGenius.com</a>
-            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:28 PM (Chiang Mai)</div>
+            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:33 PM (Chiang Mai)</div>
         </footer>
     </div>
 
@@ -116,33 +116,33 @@
         var m = u.match(/\/view\/(\d+)/) || u.match(/\/id\/(\d+)/);
         var id = m ? m[1] : '';
         
-        var rawTitle = document.title.replace('Libsyn Five | ', '').trim();
-        var t = rawTitle;
-        // Format title as "Episode #26 Title" without colon
-        var epNumMatch = rawTitle.match(/^(\d+)\s*/);
-        if (epNumMatch) {
-            t = 'Episode #' + epNumMatch[1] + ' ' + rawTitle.substring(epNumMatch[0].length);
-        } else if (!/^Episode\s*#?\d+/i.test(t)) {
-            t = 'Episode #' + en + ' ' + t;
-        }
-        
-        var d = '', a = document.body.innerText;
-        var s = a.indexOf('Episode Description');
-        var e = a.indexOf('Episode Details');
-        if (s > -1 && e > -1) { d = a.substring(s + 19, e).trim(); }
-        
+        // Extract episode metadata first (need en before title formatting)
         var rd = '', du = '', en = '';
         var li = document.querySelectorAll('li');
         for (var i = 0; i < li.length; i++) {
             var x = li[i].textContent;
             if (x.indexOf('Release Date:') > -1) {
                 rd = x.replace('Release Date:', '').trim();
-                // Remove time portion
                 rd = rd.replace(/\s+\d{1,2}:\d{2}.*$/, '');
             }
             if (x.indexOf('Duration:') > -1) du = x.replace('Duration:', '').trim();
             if (x.indexOf('Episode:') > -1) { var n = x.replace('Episode:', '').trim(); if (n) en = n; }
         }
+
+        var rawTitle = document.title.replace('Libsyn Five | ', '').trim();
+        var t = rawTitle;
+        // Format title as "Episode #26 Title" - handle "#1" or "1" format
+        var epNumMatch = rawTitle.match(/^#?(\d+)\s*/);
+        if (epNumMatch) {
+            t = 'Episode #' + epNumMatch[1] + ' ' + rawTitle.substring(epNumMatch[0].length);
+        } else if (!/^Episode\s*#?\d+/i.test(t)) {
+            t = 'Episode #' + en + ' ' + t;
+        }
+
+        var d = '', a = document.body.innerText;
+        var s = a.indexOf('Episode Description');
+        var e = a.indexOf('Episode Details');
+        if (s > -1 && e > -1) { d = a.substring(s + 19, e).trim(); }
         
         var eu = 'https://play.libsyn.com/embed/episode/id/' + id + '/height/192/theme/modern/size/large/thumbnail/yes/custom-color/008080/time-start/00:00:00/playlist/no/direction/backward';
         
@@ -150,12 +150,12 @@
         var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
         var guestName = guestMatch ? guestMatch[1] : '';
         
-        // Extract topic
-        var topicMatch = rawTitle.match(/^\d+\s+([^:?]+)/);
-        var topic = topicMatch ? topicMatch[1].trim().substring(0, 30) : rawTitle.substring(0, 30);
-        
+        // Extract topic - handle "#1" or "1" format at start
+        var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
+        var topic = topicMatch ? topicMatch[1].trim().substring(0, 30) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 30);
+
         // URL handle - strip leading numbers from topic, truncate at word boundary
-        var uhTopicClean = topic.replace(/^\d+\s*/, ''); // remove leading episode number
+        var uhTopicClean = topic.replace(/^#?\d+\s*/, ''); // remove leading episode number
         var uhTopic = uhTopicClean.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
         var uhGuest = guestName ? guestName.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : '';
         var uhPrefix = en ? 'e' + en + '-' : '';
@@ -238,10 +238,21 @@
                 var items = xml.querySelectorAll('item');
                 var episodeGuid = '';
                 var episodeArtwork = '';
-                
+
+                // Get show-level artwork as fallback
+                var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
+                var showArtwork = showImage ? showImage.textContent.trim() : '';
+
+                // Try to match by episode number first, then by title
                 for (var i = 0; i < items.length; i++) {
                     var itemTitle = items[i].querySelector('title');
-                    if (itemTitle && itemTitle.textContent.indexOf(rawTitle.substring(0, 30)) > -1) {
+                    if (!itemTitle) continue;
+                    var rssTitle = itemTitle.textContent;
+                    // Match by episode number (RSS titles start with "26 Title...")
+                    var rssEpMatch = rssTitle.match(/^(\d+)\s/);
+                    var matchFound = (en && rssEpMatch && rssEpMatch[1] === en) ||
+                                     rssTitle.indexOf(rawTitle.substring(0, 20)) > -1;
+                    if (matchFound) {
                         var guidEl = items[i].querySelector('guid');
                         if (guidEl) {
                             episodeGuid = guidEl.textContent.trim();
@@ -253,6 +264,11 @@
                         }
                         break;
                     }
+                }
+
+                // Use show artwork if episode artwork not found
+                if (!episodeArtwork && showArtwork) {
+                    episodeArtwork = showArtwork;
                 }
                 
                 // Base64 encode the GUID for pod.link
