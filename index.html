@@ -103,7 +103,7 @@
 
         <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
             Created by Willo Sana • <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;">EvolveYourGenius.com</a>
-            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:58 PM (Chiang Mai)</div>
+            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 9:02 PM (Chiang Mai)</div>
         </footer>
     </div>
 
@@ -138,6 +138,7 @@
         } else if (!/^Episode\s*#?\d+/i.test(t)) {
             t = 'Episode #' + en + ' ' + t;
         }
+        // Title case will be applied after toTitleCase is defined
 
         var d = '', a = document.body.innerText;
         var s = a.indexOf('Episode Description');
@@ -159,6 +160,9 @@
                 return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
             });
         }
+
+        // Apply title case to the main title
+        t = toTitleCase(t);
 
         // Extract topic - handle "#1" or "1" format at start (longer limit for better SEO)
         var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
@@ -327,14 +331,14 @@
                 
                 var h = '<!DOCTYPE html><html><head><title>Ready for Shopify</title><style>' + css + '</style></head><body>';
                 h += '<div class="hdr"><h1>✨ Copy to Shopify</h1></div><div class="wrap">';
-                h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Shopify: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
-                h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Shopify: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Blog Post: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Blog Post: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
                 if (encodedGuid) {
                     h += '<p class="note">✅ Episode found! Listen button and artwork linked.</p>';
                 } else {
                     h += '<p class="note">⚠️ Could not find episode in RSS feed. Generic podcast link used.</p>';
                 }
-                h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Shopify: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Blog Post: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
                 h += '<hr class="sep"><div class="sec">Search Engine Listing</div>';
                 h += '<p class="note" style="margin-top:-8px;">⚠️ Double-check these for accuracy before publishing</p>';
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option A</span><span class="shp">Edit SEO → Page title</span></div><div class="row"><div class="val" id="f3">' + seoTitle1 + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
@@ -352,7 +356,7 @@
                 } else {
                     h += '<p class="note">⚠️ Episode artwork not found in RSS feed</p>';
                 }
-                h += '<div class="fld"><div class="fld-top"><span class="lbl">Featured Image Alt Text</span><span class="shp">Shopify: Image → Edit alt text</span></div><div class="row"><div class="val" id="f7">' + altText + '</div><button class="btn" onclick="cp(\'f7\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Featured Image Alt Text</span><span class="shp">Blog Post: Image → Edit alt text</span></div><div class="row"><div class="val" id="f7">' + altText + '</div><button class="btn" onclick="cp(\'f7\',this)">Copy</button></div></div>';
                 h += '</div><script>function cp(id,b){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){b.textContent="Copied!";b.classList.add("ok");setTimeout(function(){b.textContent="Copy";b.classList.remove("ok")},1200)})}<\/script></body></html>';
                 
                 var popup = window.open('', '_blank', 'width=' + w1 + ',height=' + sh + ',left=0,top=0,scrollbars=yes');
