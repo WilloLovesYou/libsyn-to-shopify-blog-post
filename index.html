@@ -267,7 +267,7 @@
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Shopify: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Shopify: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
                 if (encodedGuid) {
-                    h += '<p class="note">✅ Platform links generated! Spotify, Apple, Overcast icons included in content.</p>';
+                    h += '<p class="note">✅ Episode found! Listen button and artwork linked.</p>';
                 } else {
                     h += '<p class="note">⚠️ Could not find episode in RSS feed. Generic podcast link used.</p>';
                 }
@@ -280,8 +280,10 @@
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Tags</span><span class="shp">Shopify: Tags</span></div><div class="row"><div class="val" id="f6">podcast</div><button class="btn" onclick="cp(\'f6\',this)">Copy</button></div></div>';
                 h += '<hr class="sep"><div class="sec">Image</div>';
                 if (episodeArtwork) {
-                    h += '<div class="fld"><div class="fld-top"><span class="lbl">Episode Artwork URL</span><span class="shp">Right-click → Save Image As</span></div><div class="row"><div class="val" id="f10" style="font-size:.7rem;"><a href="' + episodeArtwork + '" target="_blank">' + episodeArtwork + '</a></div><button class="btn" onclick="cp(\'f10\',this)">Copy URL</button></div></div>';
-                    h += '<div style="text-align:center;margin:10px 0;"><a href="' + episodeArtwork + '" target="_blank" download style="display:inline-block;background:#d49633;color:white;padding:8px 16px;border-radius:5px;text-decoration:none;font-size:13px;">Open Image to Download</a></div>';
+                    h += '<div class="fld"><div class="fld-top"><span class="lbl">Episode Artwork</span><span class="shp">Right-click image → Save As</span></div>';
+                    h += '<div style="text-align:center;margin:10px 0;"><a href="' + episodeArtwork + '" target="_blank"><img src="' + episodeArtwork + '" style="max-width:200px;max-height:200px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);" alt="Episode Artwork"></a></div>';
+                    h += '<div style="text-align:center;margin:10px 0;"><a href="' + episodeArtwork + '" target="_blank" style="display:inline-block;background:#d49633;color:white;padding:8px 16px;border-radius:5px;text-decoration:none;font-size:13px;">Download Full Size</a></div>';
+                    h += '</div>';
                 } else {
                     h += '<p class="note">⚠️ Episode artwork not found in RSS feed</p>';
                 }
