@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Colorful Path - Libsyn to Shopify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2d2a26;
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.5rem; }
+        .header p { color: #9a9590; }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+        .bookmarklet-box {
+            background: linear-gradient(135deg, #d49633 0%, #c47d28 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .bookmarklet-link {
+            display: inline-block;
+            background: #2d2a26;
+            color: white !important;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: grab;
+        }
+        .hint { color: white; margin-top: 1rem; font-size: 0.9rem; }
+        .steps { margin-top: 1rem; }
+        .step { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .step-num {
+            width: 28px; height: 28px;
+            background: #d49633; color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+        }
+        code { background: #f0ebe6; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Libsyn → Shopify</h1>
+        <p>One-click podcast episode extraction for Your Colorful Path</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Your Bookmarklet</h2>
+            <p>Drag this button to your bookmarks bar:</p>
+            <div class="bookmarklet-box">
+                <a class="bookmarklet-link" id="bookmarklet" href="#">📋 Libsyn → Shopify</a>
+                <p class="hint">↑ Drag to bookmarks bar ↑</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>How to Use</h2>
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><div>Drag the button above to your bookmarks bar (one time only)</div></div>
+                <div class="step"><div class="step-num">2</div><div>Go to a Libsyn episode page (<code>five.libsyn.com/show/episodes/view/...</code>)</div></div>
+                <div class="step"><div class="step-num">3</div><div>Click the bookmarklet - two windows open side by side</div></div>
+                <div class="step"><div class="step-num">4</div><div>Copy each field into Shopify, add your image, and publish!</div></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>What It Generates</h2>
+            <ul style="margin-left: 1.25rem; color: #5a5550;">
+                <li>Title with "Episode #" prefix</li>
+                <li>SEO-optimized page title and meta description</li>
+                <li>Clean URL handle (e.g., e26-guest-name-topic)</li>
+                <li>YouTube video embed (if found in description)</li>
+                <li>"Listen on Your Favorite App" button linking to pod.link</li>
+                <li>Episode artwork URL (full-size from RSS feed)</li>
+                <li>Properly formatted description with chapter list</li>
+                <li>Libsyn audio player</li>
+                <li>Divine Amuleto branded CTA</li>
+            </ul>
+        </div>
+    </div>
+
+<script>
+(function() {
+    function libsynExtract() {
+        var u = location.href;
+        if (u.indexOf('libsyn.com') < 0) { alert('Use on Libsyn!'); return; }
+        
+        var m = u.match(/\/view\/(\d+)/) || u.match(/\/id\/(\d+)/);
+        var id = m ? m[1] : '';
+        
+        var rawTitle = document.title.replace('Libsyn Five | ', '').trim();
+        var t = rawTitle;
+        // Format title as "Episode #26 Title" without colon
+        var epNumMatch = rawTitle.match(/^(\d+)\s*/);
+        if (epNumMatch) {
+            t = 'Episode #' + epNumMatch[1] + ' ' + rawTitle.substring(epNumMatch[0].length);
+        } else if (!/^Episode\s*#?\d+/i.test(t)) {
+            t = 'Episode #' + en + ' ' + t;
+        }
+        
+        var d = '', a = document.body.innerText;
+        var s = a.indexOf('Episode Description');
+        var e = a.indexOf('Episode Details');
+        if (s > -1 && e > -1) { d = a.substring(s + 19, e).trim(); }
+        
+        var rd = '', du = '', en = '';
+        var li = document.querySelectorAll('li');
+        for (var i = 0; i < li.length; i++) {
+            var x = li[i].textContent;
+            if (x.indexOf('Release Date:') > -1) {
+                rd = x.replace('Release Date:', '').trim();
+                // Remove time portion
+                rd = rd.replace(/\s+\d{1,2}:\d{2}.*$/, '');
+            }
+            if (x.indexOf('Duration:') > -1) du = x.replace('Duration:', '').trim();
+            if (x.indexOf('Episode:') > -1) { var n = x.replace('Episode:', '').trim(); if (n) en = n; }
+        }
+        
+        var eu = 'https://play.libsyn.com/embed/episode/id/' + id + '/height/192/theme/modern/size/large/thumbnail/yes/custom-color/008080/time-start/00:00:00/playlist/no/direction/backward';
+        
+        // Extract guest name
+        var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+        var guestName = guestMatch ? guestMatch[1] : '';
+        
+        // Extract topic
+        var topicMatch = rawTitle.match(/^\d+\s+([^:?]+)/);
+        var topic = topicMatch ? topicMatch[1].trim().substring(0, 30) : rawTitle.substring(0, 30);
+        
+        // URL handle
+        var uhTopic = topic.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+        var uhGuest = guestName ? guestName.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : '';
+        var uhPrefix = en ? 'e' + en + '-' : '';
+        var uh = uhGuest ? (uhPrefix + uhGuest + '-' + uhTopic).substring(0, 50) : (uhPrefix + uhTopic).substring(0, 50);
+        
+        // Clean description
+        var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+        
+        // Excerpt
+        var excerpt = cleanDesc.substring(0, 200);
+        if (cleanDesc.length > 200) {
+            var lastSpace = excerpt.lastIndexOf(' ');
+            if (lastSpace > 150) excerpt = excerpt.substring(0, lastSpace);
+        }
+        excerpt = excerpt + '...';
+        
+        // Meta description
+        var md = 'Your Colorful Path with Charu Boeckel: ' + cleanDesc.substring(0, 120);
+        if (md.length > 157) md = md.substring(0, 157) + '...';
+        
+        // Alt text
+        var altText = 'Your Colorful Path Podcast Episode ' + en + ' with Charu Boeckel';
+        
+        // SEO Title
+        var seoTitle = guestName ? (guestName + ' on ' + topic + ' | Your Colorful Path with Charu Podcast') : (topic + ' | Your Colorful Path with Charu Podcast');
+        if (seoTitle.length > 60) seoTitle = seoTitle.substring(0, 57) + '...';
+        
+        // YouTube embed
+        var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+        var ytEmbed = ytMatch ? '<div style="margin:30px 0;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+        
+        // Process description paragraphs - filter out "Read More"
+        // Use single line breaks for chapter list items (contain timestamps), double spacing for regular paragraphs
+        var dp = d.split('\n').filter(function(p) { 
+            var trimmed = p.trim();
+            return trimmed && trimmed.toLowerCase() !== 'read more' && trimmed.toLowerCase() !== 'read more...';
+        });
+        
+        var dh = '';
+        for (var j = 0; j < dp.length; j++) {
+            var line = dp[j].replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+            var isChapterItem = /^\d{1,2}:\d{2}/.test(dp[j].trim()) || /^\(\d{1,2}:\d{2}/.test(dp[j].trim());
+            var nextIsChapterItem = (j < dp.length - 1) && (/^\d{1,2}:\d{2}/.test(dp[j+1].trim()) || /^\(\d{1,2}:\d{2}/.test(dp[j+1].trim()));
+            
+            if (isChapterItem && !nextIsChapterItem) {
+                // Last chapter item - add extra spacing after
+                dh += line + '<br><br>\n';
+            } else if (isChapterItem || nextIsChapterItem) {
+                dh += line + '<br>\n';
+            } else {
+                dh += '<p style="margin-bottom:15px;">' + line + '</p>\n';
+            }
+        }
+        
+        // RSS Feed URL and podcast IDs
+        var rssFeed = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
+        var appleShowId = '1790327657';
+        
+        // Fetch RSS to get episode GUID
+        fetch(rssFeed)
+            .then(function(response) { return response.text(); })
+            .then(function(rssData) {
+                // Parse RSS and find matching episode
+                var parser = new DOMParser();
+                var xml = parser.parseFromString(rssData, 'text/xml');
+                var items = xml.querySelectorAll('item');
+                var episodeGuid = '';
+                var episodeArtwork = '';
+                
+                for (var i = 0; i < items.length; i++) {
+                    var itemTitle = items[i].querySelector('title');
+                    if (itemTitle && itemTitle.textContent.indexOf(rawTitle.substring(0, 30)) > -1) {
+                        var guidEl = items[i].querySelector('guid');
+                        if (guidEl) {
+                            episodeGuid = guidEl.textContent.trim();
+                        }
+                        // Get episode artwork
+                        var itunesImage = items[i].querySelector('image');
+                        if (itunesImage && itunesImage.getAttribute('href')) {
+                            episodeArtwork = itunesImage.getAttribute('href');
+                        }
+                        break;
+                    }
+                }
+                
+                // Base64 encode the GUID for pod.link
+                var encodedGuid = episodeGuid ? btoa(episodeGuid) : '';
+                
+                // Generate pod.link episode page URL
+                var podlinkPage = encodedGuid ? ('https://pod.link/' + appleShowId + '/episode/' + encodedGuid) : ('https://pod.link/' + appleShowId);
+                
+                // Single "Listen on your favorite app" button with headphone icon
+                var listenButton = '<div style="text-align:center;margin:25px 0;">' +
+                    '<a href="' + podlinkPage + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#2d2a26;color:white;padding:12px 24px;border-radius:25px;text-decoration:none;font-size:15px;font-weight:500;">' +
+                    '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/></svg>' +
+                    'Listen on Your Favorite App</a>' +
+                    '</div>';
+                
+                // Content HTML - YouTube, Listen button, Description, then Libsyn player at bottom
+                var ch = (ytEmbed ? '<!-- YouTube Video -->\n' + ytEmbed + '\n\n' : '') + 
+                    '<!-- Listen Button -->\n' + listenButton + '\n\n' +
+                    '<!-- Description -->\n' + dh + '\n\n' +
+                    '<!-- Audio Player -->\n<div style="margin-top:30px;margin-bottom:30px;">\n<iframe title="Libsyn Player" style="border:none;width:100%;height:192px;" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
+                    '<!-- CTA -->\n<div style="background:linear-gradient(135deg,#2d2a26 0%,#4a4540 100%);padding:30px;border-radius:8px;text-align:center;color:white;margin-top:40px;">\n<h3 style="margin-top:0;color:#d49633;">Continue Your Journey</h3>\n<p style="margin-bottom:20px;">Explore our collection of high-frequency spiritual jewelry, designed to anchor you in your highest self.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-block;background:#d49633;color:white;padding:12px 30px;text-decoration:none;border-radius:4px;font-weight:500;">SHOP THE COLLECTION</a>\n</div>';
+                
+                var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                var sw = screen.width, sh = screen.height;
+                var w1 = Math.floor(sw / 3), w2 = Math.floor(sw * 2 / 3);
+                
+                var css = '*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,sans-serif;background:#faf8f5;color:#2d2a26}.hdr{background:#2d2a26;color:#fff;padding:16px 20px;position:sticky;top:0}.hdr h1{font-size:1rem}.wrap{max-width:100%;margin:0 auto;padding:20px}.fld{background:#fff;border-radius:8px;padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}.fld-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.lbl{font-size:.7rem;font-weight:600;text-transform:uppercase;color:#7a7570}.shp{font-size:.6rem;color:#999;background:#f0f0f0;padding:2px 6px;border-radius:3px}.row{display:flex;gap:8px}.val{flex:1;background:#f8f6f3;padding:10px;border-radius:6px;font-size:.85rem;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto}.val.code{background:#1e1e1e;color:#d4d4d4;font-family:monospace;font-size:.7rem}.btn{background:#d49633;color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:.75rem;font-weight:500;white-space:nowrap}.btn:hover{background:#c47d28}.btn.ok{background:#2d8a2d}.sep{border:none;border-top:2px dashed #e0dcd8;margin:20px 0}.sec{font-size:.7rem;font-weight:600;text-transform:uppercase;color:#d49633;margin-bottom:12px}.note{font-size:11px;color:#999;margin-top:-8px;margin-bottom:14px}';
+                
+                var h = '<!DOCTYPE html><html><head><title>Ready for Shopify</title><style>' + css + '</style></head><body>';
+                h += '<div class="hdr"><h1>✨ Copy to Shopify</h1></div><div class="wrap">';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Shopify: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Shopify: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
+                if (encodedGuid) {
+                    h += '<p class="note">✅ Platform links generated! Spotify, Apple, Overcast icons included in content.</p>';
+                } else {
+                    h += '<p class="note">⚠️ Could not find episode in RSS feed. Generic podcast link used.</p>';
+                }
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Shopify: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
+                h += '<hr class="sep"><div class="sec">Search Engine Listing</div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO)</span><span class="shp">Shopify: Page title</span></div><div class="row"><div class="val" id="f3">' + seoTitle + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Meta Description</span><span class="shp">Shopify: Meta description</span></div><div class="row"><div class="val" id="f4">' + md + '</div><button class="btn" onclick="cp(\'f4\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">URL Handle</span><span class="shp">Shopify: URL handle</span></div><div class="row"><div class="val" id="f5">' + uh + '</div><button class="btn" onclick="cp(\'f5\',this)">Copy</button></div></div>';
+                h += '<hr class="sep">';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Tags</span><span class="shp">Shopify: Tags</span></div><div class="row"><div class="val" id="f6">podcast</div><button class="btn" onclick="cp(\'f6\',this)">Copy</button></div></div>';
+                h += '<hr class="sep"><div class="sec">Image</div>';
+                if (episodeArtwork) {
+                    h += '<div class="fld"><div class="fld-top"><span class="lbl">Episode Artwork URL</span><span class="shp">Right-click → Save Image As</span></div><div class="row"><div class="val" id="f10" style="font-size:.7rem;"><a href="' + episodeArtwork + '" target="_blank">' + episodeArtwork + '</a></div><button class="btn" onclick="cp(\'f10\',this)">Copy URL</button></div></div>';
+                    h += '<div style="text-align:center;margin:10px 0;"><a href="' + episodeArtwork + '" target="_blank" download style="display:inline-block;background:#d49633;color:white;padding:8px 16px;border-radius:5px;text-decoration:none;font-size:13px;">Open Image to Download</a></div>';
+                } else {
+                    h += '<p class="note">⚠️ Episode artwork not found in RSS feed</p>';
+                }
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Featured Image Alt Text</span><span class="shp">Shopify: Image → Edit alt text</span></div><div class="row"><div class="val" id="f7">' + altText + '</div><button class="btn" onclick="cp(\'f7\',this)">Copy</button></div></div>';
+                h += '</div><script>function cp(id,b){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){b.textContent="Copied!";b.classList.add("ok");setTimeout(function(){b.textContent="Copy";b.classList.remove("ok")},1200)})}<\/script></body></html>';
+                
+                var popup = window.open('', '_blank', 'width=' + w1 + ',height=' + sh + ',left=0,top=0,scrollbars=yes');
+                popup.document.write(h);
+                popup.document.close();
+                
+                setTimeout(function() {
+                    window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0');
+                }, 300);
+            })
+            .catch(function(error) {
+                alert('Error fetching RSS feed: ' + error.message);
+            });
+    }
+    
+    var funcStr = libsynExtract.toString();
+    var code = '(' + funcStr + ')()';
+    document.getElementById('bookmarklet').href = 'javascript:' + encodeURIComponent(code);
+})();
+</script>
+</body>
+</html>
