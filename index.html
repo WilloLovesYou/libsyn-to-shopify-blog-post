@@ -103,7 +103,7 @@
 
         <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
             Created by Willo Sana • <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;">EvolveYourGenius.com</a>
-            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:42 PM (Chiang Mai)</div>
+            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:47 PM (Chiang Mai)</div>
         </footer>
     </div>
 
@@ -185,16 +185,29 @@
         // Alt text
         var altText = 'Your Colorful Path Podcast Episode ' + en + ' with Charu Boeckel';
         
-        // SEO Title - allow up to 65 chars, truncate at word boundary if needed
-        var seoSuffix = ' | Your Colorful Path Podcast';
+        // SEO Title - two options: full branding vs more keywords
+        var seoSuffix1 = ' | Your Colorful Path Podcast';
+        var seoSuffix2 = ' | Your Colorful Path'; // shorter for longer topics
         var seoPrefix = guestName ? (guestName + ' on ' + topic) : topic;
-        var seoTitle = seoPrefix + seoSuffix;
-        if (seoTitle.length > 65) {
-            var maxPrefix = 65 - seoSuffix.length;
+
+        // Option 1: Full branding (truncate topic if needed)
+        var seoTitle1 = seoPrefix + seoSuffix1;
+        if (seoTitle1.length > 65) {
+            var maxPrefix = 65 - seoSuffix1.length;
             var truncated = seoPrefix.substring(0, maxPrefix);
             var lastSpace = truncated.lastIndexOf(' ');
             if (lastSpace > 15) truncated = truncated.substring(0, lastSpace);
-            seoTitle = truncated + seoSuffix;
+            seoTitle1 = truncated + seoSuffix1;
+        }
+
+        // Option 2: More keywords, shorter branding
+        var seoTitle2 = seoPrefix + seoSuffix2;
+        if (seoTitle2.length > 65) {
+            var maxPrefix = 65 - seoSuffix2.length;
+            var truncated2 = seoPrefix.substring(0, maxPrefix);
+            var lastSpace2 = truncated2.lastIndexOf(' ');
+            if (lastSpace2 > 15) truncated2 = truncated2.substring(0, lastSpace2);
+            seoTitle2 = truncated2 + seoSuffix2;
         }
         
         // YouTube embed
@@ -310,7 +323,8 @@
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Shopify: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
                 h += '<hr class="sep"><div class="sec">Search Engine Listing</div>';
                 h += '<p class="note" style="margin-top:-8px;">⚠️ Double-check these for accuracy before publishing</p>';
-                h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO)</span><span class="shp">Edit SEO → Page title</span></div><div class="row"><div class="val" id="f3">' + seoTitle + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option A</span><span class="shp">Edit SEO → Page title</span></div><div class="row"><div class="val" id="f3">' + seoTitle1 + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
+                h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option B</span><span class="shp">More keywords</span></div><div class="row"><div class="val" id="f3b">' + seoTitle2 + '</div><button class="btn" onclick="cp(\'f3b\',this)">Copy</button></div></div>';
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Description</span><span class="shp">Edit SEO → Description</span></div><div class="row"><div class="val" id="f4">' + md + '</div><button class="btn" onclick="cp(\'f4\',this)">Copy</button></div></div>';
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">URL Handle</span><span class="shp">Edit SEO → URL handle</span></div><div class="row"><div class="val" id="f5">' + uh + '</div><button class="btn" onclick="cp(\'f5\',this)">Copy</button></div></div>';
                 h += '<hr class="sep">';
