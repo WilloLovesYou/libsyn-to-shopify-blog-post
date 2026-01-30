@@ -149,11 +149,18 @@
         var topicMatch = rawTitle.match(/^\d+\s+([^:?]+)/);
         var topic = topicMatch ? topicMatch[1].trim().substring(0, 30) : rawTitle.substring(0, 30);
         
-        // URL handle
-        var uhTopic = topic.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+        // URL handle - strip leading numbers from topic, truncate at word boundary
+        var uhTopicClean = topic.replace(/^\d+\s*/, ''); // remove leading episode number
+        var uhTopic = uhTopicClean.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
         var uhGuest = guestName ? guestName.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : '';
         var uhPrefix = en ? 'e' + en + '-' : '';
-        var uh = uhGuest ? (uhPrefix + uhGuest + '-' + uhTopic).substring(0, 50) : (uhPrefix + uhTopic).substring(0, 50);
+        var uhFull = uhGuest ? (uhPrefix + uhGuest + '-' + uhTopic) : (uhPrefix + uhTopic);
+        if (uhFull.length > 50) {
+            uhFull = uhFull.substring(0, 50);
+            var lastHyphen = uhFull.lastIndexOf('-');
+            if (lastHyphen > 10) uhFull = uhFull.substring(0, lastHyphen);
+        }
+        var uh = uhFull;
         
         // Clean description
         var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
