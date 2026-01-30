@@ -103,7 +103,7 @@
 
         <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
             Created by Willo Sana • <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;">EvolveYourGenius.com</a>
-            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:48 PM (Chiang Mai)</div>
+            <div style="font-size:0.75rem;margin-top:0.5rem;">Last updated: January 30, 2026 8:58 PM (Chiang Mai)</div>
         </footer>
     </div>
 
@@ -150,11 +150,21 @@
         var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
         var guestName = guestMatch ? guestMatch[1] : '';
         
+        // Title case helper - capitalize first letter of each word (except small words)
+        function toTitleCase(str) {
+            var smallWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'by', 'of', 'in', 'with'];
+            return str.replace(/\w\S*/g, function(txt, index) {
+                var lower = txt.toLowerCase();
+                if (index > 0 && smallWords.indexOf(lower) > -1) return lower;
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
         // Extract topic - handle "#1" or "1" format at start (longer limit for better SEO)
         var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
         var topicRaw = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
-        // Capitalize first letter of topic
-        var topic = topicRaw.charAt(0).toUpperCase() + topicRaw.slice(1);
+        // Title case the topic
+        var topic = toTitleCase(topicRaw);
 
         // URL handle - strip leading numbers from topic, truncate at word boundary
         var uhTopicClean = topic.replace(/^#?\d+\s*/, ''); // remove leading episode number
@@ -191,8 +201,8 @@
         var seoSuffix1 = ' | Your Colorful Path Podcast';
         var seoSuffix2 = ' | Your Colorful Path'; // shorter for longer topics
         var seoPrefixRaw = guestName ? (guestName + ' on ' + topic) : topic;
-        // Ensure capitalization
-        var seoPrefix = seoPrefixRaw.charAt(0).toUpperCase() + seoPrefixRaw.slice(1);
+        // Title case the SEO prefix
+        var seoPrefix = toTitleCase(seoPrefixRaw);
 
         // Option 1: Full branding (truncate topic if needed)
         var seoTitle1 = seoPrefix + seoSuffix1;
