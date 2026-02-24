@@ -196,7 +196,7 @@
             });
 
             // Header patterns - only match when keyword is at start after emoji/whitespace (no letters before keyword)
-            var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|SUBSCRIBE)\b/i;
+            var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\b/i;
 
             var linkTarget = function(url) {
                 return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
@@ -244,14 +244,17 @@
                 var hasLinkContent = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(trimmedLine);
                 var isLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(trimmedLine) && hasLinkContent) ||
                     /^[^:]+:\s+@\w+/.test(trimmedLine);
+                // Detect bullet-point lines (• text)
+                var isBulletLine = /^[•●▪]\s/.test(trimmedLine);
                 var nextTrimmed = (j < dp.length - 1) ? dp[j+1].trim() : '';
                 var nextHasLink = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed);
                 var nextIsLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(nextTrimmed) && nextHasLink) ||
                     /^[^:]+:\s+@\w+/.test(nextTrimmed);
+                var nextIsBulletLine = /^[•●▪]\s/.test(nextTrimmed);
                 var nextIsHeader = headerPatterns.test(nextTrimmed);
 
-                var isListItem = isChapterItem || isLinkLine;
-                var nextIsListItem = nextIsChapterItem || nextIsLinkLine;
+                var isListItem = isChapterItem || isLinkLine || isBulletLine;
+                var nextIsListItem = nextIsChapterItem || nextIsLinkLine || nextIsBulletLine;
 
                 if (isHeader) {
                     dh += '<p class="ycp-section-header"><strong>' + line + '</strong></p>\n';
