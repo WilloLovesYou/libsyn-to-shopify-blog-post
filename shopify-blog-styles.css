@@ -29,7 +29,10 @@
   width: auto;
 }
 
-/* Episode description */
+/* Episode description — override .rte underlined links */
+.ycp-desc a {
+  text-decoration: none;
+}
 .ycp-desc p {
   margin-bottom: 15px;
 }
@@ -75,17 +78,8 @@
   color: #4a4540;
   line-height: 1.7;
 }
-.ycp-cta a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 32px;
-  background: #2d2a26;
-  color: white;
-  text-decoration: none;
+/* CTA button inherits native .button styles — just add pill shape */
+.ycp-cta .button {
   border-radius: 50px;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
+  text-decoration: none;
 }

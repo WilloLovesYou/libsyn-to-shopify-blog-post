@@ -263,7 +263,7 @@
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
                 '<!-- Description -->\n<div class="ycp-desc">\n' + dh + '</div>\n\n' +
                 '<!-- Audio Player -->\n<div class="ycp-audio">\n<iframe title="Libsyn Player" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
-                '<!-- CTA -->\n<div class="ycp-cta">\n<h3>Continue Your Journey</h3>\n<p>Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener">Explore Collection</a>\n</div>';
+                '<!-- CTA -->\n<div class="ycp-cta">\n<h3>Continue Your Journey</h3>\n<p>Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a class="button" href="/collections/all" target="_blank" rel="noopener">Explore Collection</a>\n</div>';
 
             var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
