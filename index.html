@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Colorful Path - Libsyn to Shopify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2d2a26;
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.5rem; }
+        .header p { color: #9a9590; }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+        .bookmarklet-box {
+            background: linear-gradient(135deg, #d49633 0%, #c47d28 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .bookmarklet-link {
+            display: inline-block;
+            background: #2d2a26;
+            color: white !important;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: grab;
+        }
+        .hint { color: white; margin-top: 1rem; font-size: 0.9rem; }
+        .steps { margin-top: 1rem; }
+        .step { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .step-num {
+            width: 28px; height: 28px;
+            background: #d49633; color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+        }
+        code { background: #f0ebe6; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Libsyn → Shopify</h1>
+        <p>One-click podcast episode extraction for Your Colorful Path</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Your Bookmarklet</h2>
+            <p>Drag this button to your bookmarks bar:</p>
+            <div class="bookmarklet-box">
+                <a class="bookmarklet-link" href="javascript:(function(){var s=document.createElement('script');s.src='https://willolovesyou.github.io/colorful-bookmarklet/bookmarklet.js?v='+Date.now();document.body.appendChild(s);})()">📋 Libsyn → Shopify</a>
+                <p class="hint">↑ Drag to bookmarks bar ↑</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>How to Use</h2>
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><div>Drag the button above to your bookmarks bar (one time only)</div></div>
+                <div class="step"><div class="step-num">2</div><div>Go to a Libsyn episode page (<code>five.libsyn.com/show/episodes/view/...</code>)</div></div>
+                <div class="step"><div class="step-num">3</div><div>Click the bookmarklet - two windows open side by side</div></div>
+                <div class="step"><div class="step-num">4</div><div>Copy each field into Shopify, add your image, and publish!</div></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>What It Generates</h2>
+            <ul style="margin-left: 1.25rem; color: #5a5550;">
+                <li>Title with "Episode #" prefix</li>
+                <li>SEO-optimized page title and meta description</li>
+                <li>Clean URL handle (e.g., e26-guest-name-topic)</li>
+                <li>YouTube video embed (if found in description)</li>
+                <li>"Listen on Your Favorite App" button linking to pod.link</li>
+                <li>Episode artwork URL (full-size from RSS feed)</li>
+                <li>Properly formatted description with chapter list</li>
+                <li>Libsyn audio player</li>
+                <li>Divine Amuleto branded CTA</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
