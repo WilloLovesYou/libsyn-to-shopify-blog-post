@@ -5,46 +5,103 @@
     var m = u.match(/\/view\/(\d+)/) || u.match(/\/id\/(\d+)/);
     var id = m ? m[1] : '';
 
+    // Extract episode metadata from page
+    var rd = '', du = '', en = '';
+    var li = document.querySelectorAll('li');
+    for (var i = 0; i < li.length; i++) {
+        var x = li[i].textContent;
+        if (x.indexOf('Release Date:') > -1) {
+            rd = x.replace('Release Date:', '').trim();
+            rd = rd.replace(/\s+\d{1,2}:\d{2}.*$/, '');
+        }
+        if (x.indexOf('Duration:') > -1) du = x.replace('Duration:', '').trim();
+        if (x.indexOf('Episode:') > -1) { var n = x.replace('Episode:', '').trim(); if (n) en = n; }
+    }
+
     var rawTitle = document.title.replace('Libsyn Five | ', '').trim();
+    // Fallback: get episode number from title if not found in metadata
+    if (!en) en = (rawTitle.match(/^#?(\d+)/) || ['', ''])[1];
+
+    // Title case helper
+    function toTitleCase(str) {
+        var smallWords = ['a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'by', 'of', 'in', 'with'];
+        return str.replace(/\w\S*/g, function(txt, index) {
+            var lower = txt.toLowerCase();
+            if (index > 0 && smallWords.indexOf(lower) > -1) return lower;
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+
+    // Format title as "Episode #26 Title"
     var t = rawTitle;
-    var en = (rawTitle.match(/^(\d+)/) || ['', ''])[1];
-    // Format title as "Episode #26 Title" without colon
-    var epNumMatch = rawTitle.match(/^(\d+)\s*/);
+    var epNumMatch = rawTitle.match(/^#?(\d+)\s*/);
     if (epNumMatch) {
         t = 'Episode #' + epNumMatch[1] + ' ' + rawTitle.substring(epNumMatch[0].length);
     } else if (!/^Episode\s*#?\d+/i.test(t)) {
         t = 'Episode #' + en + ' ' + t;
     }
+    t = toTitleCase(t);
 
     // Build embed URL
     var eu = 'https://five.libsyn.com/public/embed/destination/1/id/' + id + '/autoplay/no/direction/forward/theme/custom/custom-color/d49633/height/192';
 
-    // Create SEO-friendly URL handle
-    var guestMatch = rawTitle.match(/(?:with|featuring|ft\.?|guest:?)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
-    var topicWords = rawTitle.replace(/^\d+\s*[-:]?\s*/, '').toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(function(w) { return w.length > 3; }).slice(0, 3);
-    var uh = 'e' + en + '-' + (guestMatch ? guestMatch[1].toLowerCase().replace(/\s+/g, '-') + '-' : '') + topicWords.join('-');
-    uh = uh.replace(/--+/g, '-').replace(/-$/, '');
+    // Extract guest name
+    var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+    var guestName = guestMatch ? guestMatch[1] : '';
 
-    // SEO Title
-    var seoTitle = rawTitle.substring(0, 55);
-    if (guestMatch) {
-        seoTitle = guestMatch[1] + ' on ' + topicWords.slice(0, 2).join(' ');
+    // Extract topic
+    var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
+    var topicRaw = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
+    var topic = toTitleCase(topicRaw);
+
+    // URL handle
+    var uhTopicClean = topic.replace(/^#?\d+\s*/, '');
+    var uhTopic = uhTopicClean.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+    var uhGuest = guestName ? guestName.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-') : '';
+    var uhPrefix = en ? 'e' + en + '-' : '';
+    var uhFull = uhGuest ? (uhPrefix + uhGuest + '-' + uhTopic) : (uhPrefix + uhTopic);
+    if (uhFull.length > 70) {
+        uhFull = uhFull.substring(0, 70);
+        var lastH = uhFull.lastIndexOf('-');
+        if (lastH > 15) uhFull = uhFull.substring(0, lastH);
     }
-    seoTitle = seoTitle.substring(0, 50) + ' | Your Colorful Path';
+    var uh = uhFull;
+
+    // SEO Titles - two options
+    var seoSuffix1 = ' | Your Colorful Path Podcast';
+    var seoSuffix2 = ' | Your Colorful Path';
+    var seoPrefixRaw = guestName ? (guestName + ' on ' + topic) : topic;
+    var seoPrefix = toTitleCase(seoPrefixRaw);
+
+    var seoTitle1 = seoPrefix + seoSuffix1;
+    if (seoTitle1.length > 65) {
+        var maxP1 = 65 - seoSuffix1.length;
+        var trunc1 = seoPrefix.substring(0, maxP1);
+        var ls1 = trunc1.lastIndexOf(' ');
+        if (ls1 > 15) trunc1 = trunc1.substring(0, ls1);
+        seoTitle1 = trunc1 + seoSuffix1;
+    }
+
+    var seoTitle2 = seoPrefix + seoSuffix2;
+    if (seoTitle2.length > 65) {
+        var maxP2 = 65 - seoSuffix2.length;
+        var trunc2 = seoPrefix.substring(0, maxP2);
+        var ls2 = trunc2.lastIndexOf(' ');
+        if (ls2 > 15) trunc2 = trunc2.substring(0, ls2);
+        seoTitle2 = trunc2 + seoSuffix2;
+    }
 
     // Alt text
-    var altText = 'Episode ' + en + ' - ' + rawTitle.replace(/^\d+\s*[-:]?\s*/, '').substring(0, 80);
+    var altText = 'Your Colorful Path Podcast Episode ' + en + ' with Charu Boeckel';
 
     // RSS Feed URL and podcast IDs
     var rssFeed = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
     var appleShowId = '1790327657';
 
-    // Fetch RSS to get episode GUID and full description
+    // Fetch RSS to get episode GUID, artwork, and full description
     fetch(rssFeed)
         .then(function(response) { return response.text(); })
         .then(function(rssData) {
-            // Parse RSS and find matching episode
             var parser = new DOMParser();
             var xml = parser.parseFromString(rssData, 'text/xml');
             var items = xml.querySelectorAll('item');
@@ -52,57 +109,80 @@
             var episodeArtwork = '';
             var rssDescription = '';
 
+            // Get show-level artwork as fallback
+            var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
+            var showArtwork = showImage ? showImage.textContent.trim() : '';
+
+            // Try to match by episode number first, then by title
             for (var i = 0; i < items.length; i++) {
                 var itemTitle = items[i].querySelector('title');
-                if (itemTitle && itemTitle.textContent.indexOf(rawTitle.substring(0, 30)) > -1) {
+                if (!itemTitle) continue;
+                var rssTitle = itemTitle.textContent;
+                var rssEpMatch = rssTitle.match(/^(\d+)\s/);
+                var matchFound = (en && rssEpMatch && rssEpMatch[1] === en) ||
+                                 rssTitle.indexOf(rawTitle.substring(0, 20)) > -1;
+                if (matchFound) {
                     var guidEl = items[i].querySelector('guid');
-                    if (guidEl) {
-                        episodeGuid = guidEl.textContent.trim();
-                    }
-                    // Get episode artwork
+                    if (guidEl) episodeGuid = guidEl.textContent.trim();
                     var itunesImage = items[i].querySelector('image');
                     if (itunesImage && itunesImage.getAttribute('href')) {
                         episodeArtwork = itunesImage.getAttribute('href');
                     }
-                    // Get full description from RSS
                     var descEl = items[i].querySelector('description');
-                    if (descEl) {
-                        rssDescription = descEl.textContent.trim();
-                    }
+                    if (descEl) rssDescription = descEl.textContent.trim();
                     break;
                 }
             }
 
-            // Convert HTML description to plain text
+            // Use show artwork if episode artwork not found
+            if (!episodeArtwork && showArtwork) episodeArtwork = showArtwork;
+
+            // Convert HTML description to plain text, preserving line breaks
             var tempDiv = document.createElement('div');
             tempDiv.innerHTML = rssDescription;
             var d = tempDiv.innerText || tempDiv.textContent || '';
 
-            // Extract YouTube video if present
-            var ytMatch = d.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/) ||
-                          rssDescription.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-            var ytEmbed = ytMatch ? '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;margin-bottom:20px;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+            // Also try page DOM as fallback if RSS description is empty
+            if (!d.trim()) {
+                var a = document.body.innerText;
+                var s = a.indexOf('Episode Description');
+                var e = a.indexOf('Episode Details');
+                if (s > -1 && e > -1) d = a.substring(s + 19, e).trim();
+            }
 
-            // Meta description
-            var md = d.split('\n').filter(function(l) { return l.trim(); })[0] || '';
-            md = md.substring(0, 155);
-            if (md.length === 155) md = md.substring(0, md.lastIndexOf(' ')) + '...';
+            // YouTube embed
+            var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/) ||
+                          rssDescription.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+            var ytEmbed = ytMatch ? '<div style="margin:30px 0;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+
+            // Clean description for excerpt/meta
+            var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 
             // Excerpt
-            var excerpt = d.split('\n').filter(function(l) { return l.trim(); })[0] || '';
-            excerpt = excerpt.substring(0, 200);
-            if (excerpt.length === 200) excerpt = excerpt.substring(0, excerpt.lastIndexOf(' ')) + '...';
+            var excerpt = cleanDesc.substring(0, 200);
+            if (cleanDesc.length > 200) {
+                var lastSp = excerpt.lastIndexOf(' ');
+                if (lastSp > 150) excerpt = excerpt.substring(0, lastSp);
+            }
+            excerpt = excerpt + '...';
+
+            // Meta description
+            var md = 'Your Colorful Path with Charu Boeckel: ' + cleanDesc.substring(0, 120);
+            if (md.length > 157) md = md.substring(0, 157) + '...';
 
             // Process description paragraphs
+            // Filter out "Read More", horizontal lines (━━━), and empty lines
             var dp = d.split('\n').filter(function(p) {
                 var trimmed = p.trim();
-                return trimmed &&
-                    trimmed.toLowerCase() !== 'read more' &&
-                    trimmed.toLowerCase() !== 'read more...' &&
-                    /[a-zA-Z0-9]/.test(trimmed); // skip lines that are only special chars like ━━━━
+                if (!trimmed) return false;
+                if (trimmed.toLowerCase() === 'read more' || trimmed.toLowerCase() === 'read more...') return false;
+                // Remove lines that are only special characters (horizontal rules, decorators)
+                if (!/[a-zA-Z0-9]/.test(trimmed)) return false;
+                return true;
             });
 
-            var headerPatterns = /^.{0,5}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|SUBSCRIBE):?\s/i;
+            // Header patterns - handle emoji prefixes (up to ~10 chars for multi-byte emoji + space)
+            var headerPatterns = /^.{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|SUBSCRIBE)\b/i;
 
             var linkTarget = function(url) {
                 return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
@@ -133,17 +213,15 @@
 
             // Base64 encode the GUID for pod.link
             var encodedGuid = episodeGuid ? btoa(episodeGuid) : '';
-
-            // Generate pod.link episode page URL
             var podlinkPage = encodedGuid ? ('https://pod.link/' + appleShowId + '/episode/' + encodedGuid) : ('https://pod.link/' + appleShowId);
 
-            // Single "Listen on your favorite app" image button
+            // Listen button
             var listenButton = '<div style="text-align:center;margin:25px 0;">' +
                 '<a href="' + podlinkPage + '" target="_blank" rel="noopener">' +
                 '<img src="https://cdn.shopify.com/s/files/1/0870/3688/7345/files/Listen_on_Your_Favorite_App.png?v=1771919518" alt="Listen on Your Favorite App" style="height:50px;width:auto;">' +
                 '</a></div>';
 
-            // Content HTML - YouTube, Listen button, Description, then Libsyn player at bottom
+            // Content HTML
             var ch = (ytEmbed ? '<!-- YouTube Video -->\n' + ytEmbed + '\n\n' : '') +
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
                 '<!-- Description -->\n' + dh + '\n\n' +
@@ -159,20 +237,22 @@
 
             var h = '<!DOCTYPE html><html><head><title>Ready for Shopify</title><style>' + css + '</style></head><body>';
             h += '<div class="hdr"><h1>✨ Copy to Shopify</h1></div><div class="wrap">';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Shopify: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Shopify: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Blog Post: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Blog Post: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
             if (encodedGuid) {
                 h += '<p class="note">✅ Episode found! Listen button and artwork linked.</p>';
             } else {
                 h += '<p class="note">⚠️ Could not find episode in RSS feed. Generic podcast link used.</p>';
             }
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Shopify: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Excerpt</span><span class="shp">Blog Post: Excerpt</span></div><div class="row"><div class="val" id="f9">' + excerpt + '</div><button class="btn" onclick="cp(\'f9\',this)">Copy</button></div></div>';
             h += '<hr class="sep"><div class="sec">Search Engine Listing</div>';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO)</span><span class="shp">Shopify: Page title</span></div><div class="row"><div class="val" id="f3">' + seoTitle + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Meta Description</span><span class="shp">Shopify: Meta description</span></div><div class="row"><div class="val" id="f4">' + md + '</div><button class="btn" onclick="cp(\'f4\',this)">Copy</button></div></div>';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">URL Handle</span><span class="shp">Shopify: URL handle</span></div><div class="row"><div class="val" id="f5">' + uh + '</div><button class="btn" onclick="cp(\'f5\',this)">Copy</button></div></div>';
+            h += '<p class="note" style="margin-top:-8px;">⚠️ Double-check these for accuracy before publishing</p>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option A</span><span class="shp">Edit SEO → Page title</span></div><p class="note" style="margin-bottom:8px;">Select all & delete existing text first, then paste</p><div class="row"><div class="val" id="f3">' + seoTitle1 + '</div><button class="btn" onclick="cp(\'f3\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option B</span><span class="shp">More keywords</span></div><div class="row"><div class="val" id="f3b">' + seoTitle2 + '</div><button class="btn" onclick="cp(\'f3b\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Meta Description</span><span class="shp">Edit SEO → Description</span></div><div class="row"><div class="val" id="f4">' + md + '</div><button class="btn" onclick="cp(\'f4\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">URL Handle</span><span class="shp">Edit SEO → URL handle</span></div><p class="note" style="margin-bottom:8px;">Select all & delete existing text first, then paste</p><div class="row"><div class="val" id="f5">' + uh + '</div><button class="btn" onclick="cp(\'f5\',this)">Copy</button></div></div>';
             h += '<hr class="sep">';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Tags</span><span class="shp">Shopify: Tags</span></div><div class="row"><div class="val" id="f6">podcast</div><button class="btn" onclick="cp(\'f6\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Tags</span><span class="shp">Type to auto-populate</span></div><p class="note" style="margin-bottom:8px;">Click in the Tags field & type to select</p><div class="row"><div class="val" id="f6">podcast</div><button class="btn" onclick="cp(\'f6\',this)">Copy</button></div></div>';
             h += '<hr class="sep"><div class="sec">Image</div>';
             if (episodeArtwork) {
                 h += '<div class="fld"><div class="fld-top"><span class="lbl">Episode Artwork</span><span class="shp">Right-click image → Save As</span></div>';
@@ -182,7 +262,7 @@
             } else {
                 h += '<p class="note">⚠️ Episode artwork not found in RSS feed</p>';
             }
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Featured Image Alt Text</span><span class="shp">Shopify: Image → Edit alt text</span></div><div class="row"><div class="val" id="f7">' + altText + '</div><button class="btn" onclick="cp(\'f7\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Featured Image Alt Text</span><span class="shp">Blog Post: Image → Edit alt text</span></div><div class="row"><div class="val" id="f7">' + altText + '</div><button class="btn" onclick="cp(\'f7\',this)">Copy</button></div></div>';
             h += '</div><script>function cp(id,b){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){b.textContent="Copied!";b.classList.add("ok");setTimeout(function(){b.textContent="Copy";b.classList.remove("ok")},1200)})}<\/script></body></html>';
 
             var popup = window.open('', '_blank', 'width=' + w1 + ',height=' + sh + ',left=0,top=0,scrollbars=yes');
