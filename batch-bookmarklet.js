@@ -474,9 +474,14 @@
         h += 'function toggle(hdr){var body=hdr.nextElementSibling;var isOpen=body.classList.contains("open");body.classList.toggle("open");hdr.classList.toggle("open")}';
         h += '<\/script></body></html>';
 
-        var popup = window.open('', '_blank', 'width=' + Math.min(sw, 900) + ',height=' + sh + ',left=' + Math.floor((sw - 900) / 2) + ',top=0,scrollbars=yes');
+        var w1 = Math.floor(sw / 3), w2 = Math.floor(sw * 2 / 3);
+        var popup = window.open('', '_blank', 'width=' + w1 + ',height=' + sh + ',left=0,top=0,scrollbars=yes');
         popup.document.write(h);
         popup.document.close();
+
+        setTimeout(function() {
+            window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0');
+        }, 300);
 
     }).catch(function(error) {
         overlay.remove();
