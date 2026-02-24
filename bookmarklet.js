@@ -234,6 +234,8 @@
                         .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
                         .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
                 }
+                // Link "Your Colorful Path" to podcast page (only if not already inside a link)
+                line = line.replace(/(?<![">])Your Colorful Path(?![^<]*<\/a>)/g, '<a href="/your-colorful-path-podcast">Your Colorful Path</a>');
                 var trimmedLine = dp[j].trim();
                 var isHeader = headerPatterns.test(trimmedLine);
                 var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
