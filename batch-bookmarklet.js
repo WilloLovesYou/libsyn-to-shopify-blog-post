@@ -51,37 +51,83 @@
         return null;
     }
 
+    // Extract item_id and item_title pairs from HTML using simple regex
+    function extractItemsFromHtml(html) {
+        var items = [];
+        // Match each item object by finding item_id followed by item_title (or vice versa)
+        var pattern = /"item_id"\s*:\s*(\d+)/g;
+        var titlePattern = /"item_title"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
+        var ids = [], titles = [];
+        var m;
+        while ((m = pattern.exec(html)) !== null) ids.push(m[1]);
+        while ((m = titlePattern.exec(html)) !== null) titles.push(m[1]);
+        for (var i = 0; i < ids.length && i < titles.length; i++) {
+            items.push({ item_id: ids[i], item_title: titles[i] });
+        }
+        return items;
+    }
+
     // Collect episode IDs from paginated show pages
     function collectEpisodeIds() {
         var allItems = [];
+        var debugLog = [];
 
         // Try current page's window.PAGE_DATA first
         if (window.PAGE_DATA && window.PAGE_DATA.items) {
             window.PAGE_DATA.items.forEach(function(item) {
-                allItems.push({ item_id: item.item_id, item_title: item.item_title || '' });
+                allItems.push({ item_id: String(item.item_id), item_title: item.item_title || '' });
             });
+            debugLog.push('PAGE_DATA: ' + allItems.length + ' items');
+        } else {
+            debugLog.push('PAGE_DATA: not found');
+            // Fallback: extract from current page's HTML
+            var pageItems = extractItemsFromHtml(document.documentElement.innerHTML);
+            if (pageItems.length > 0) {
+                allItems = pageItems;
+                debugLog.push('HTML extract (current page): ' + pageItems.length + ' items');
+            }
         }
 
         // Fetch a page and extract items
         function fetchPage(pageNum) {
-            return fetch(showBase + '/page/' + pageNum + '/size/5')
-                .then(function(r) { return r.text(); })
+            var url = showBase + '/page/' + pageNum + '/size/5';
+            return fetch(url)
+                .then(function(r) {
+                    debugLog.push('Page ' + pageNum + ': HTTP ' + r.status);
+                    return r.text();
+                })
                 .then(function(html) {
+                    // Try brace-counting parser first
                     var data = extractPageData(html);
                     if (data && data.items && data.items.length > 0) {
+                        debugLog.push('Page ' + pageNum + ': JSON parsed, ' + data.items.length + ' items');
                         return data.items.map(function(item) {
-                            return { item_id: item.item_id, item_title: item.item_title || '' };
+                            return { item_id: String(item.item_id), item_title: item.item_title || '' };
                         });
                     }
+                    // Fallback: regex extraction
+                    var regexItems = extractItemsFromHtml(html);
+                    if (regexItems.length > 0) {
+                        debugLog.push('Page ' + pageNum + ': regex extracted ' + regexItems.length + ' items');
+                        return regexItems;
+                    }
+                    debugLog.push('Page ' + pageNum + ': no items found (html length: ' + html.length + ')');
                     return [];
                 })
-                .catch(function() { return []; });
+                .catch(function(err) {
+                    debugLog.push('Page ' + pageNum + ': FETCH ERROR - ' + err.message);
+                    return [];
+                });
         }
 
         // Fetch pages sequentially until empty
         function fetchAllPages(pageNum) {
             return fetchPage(pageNum).then(function(items) {
-                if (items.length === 0) return allItems;
+                if (items.length === 0) {
+                    // Store debug log for later display
+                    allItems._debugLog = debugLog;
+                    return allItems;
+                }
                 items.forEach(function(item) {
                     var exists = allItems.some(function(a) { return a.item_id === item.item_id; });
                     if (!exists) allItems.push(item);
@@ -340,6 +386,11 @@
         var rssItems = xml.querySelectorAll('item');
         var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
         var showArtwork = showImage ? showImage.textContent.trim() : '';
+
+        // Debug: show what was collected
+        var debugInfo = (pageItems._debugLog || []).join('\n');
+        var sampleItems = pageItems.slice(0, 3).map(function(it) { return it.item_id + ' = ' + it.item_title; }).join('\n');
+        alert('DEBUG (will remove once working)\n\nIDs collected: ' + pageItems.length + '\nSample:\n' + sampleItems + '\n\nLog:\n' + debugInfo);
 
         // Build lookup: episode number → item_id
         var idLookup = {};
