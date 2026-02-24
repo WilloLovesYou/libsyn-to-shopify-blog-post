@@ -43,7 +43,7 @@
     t = toTitleCase(t);
 
     // Build embed URL
-    var eu = 'https://five.libsyn.com/public/embed/destination/1/id/' + id + '/autoplay/no/direction/forward/theme/custom/custom-color/d49633/height/192';
+    var eu = 'https://play.libsyn.com/embed/episode/id/' + id + '/height/128/theme/modern/size/standard/thumbnail/yes/custom-color/b88748/time-start/00:00:00/hide-playlist/yes/hide-subscribe/yes/hide-share/yes/font-color/ffffff';
 
     // Extract guest name
     var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
@@ -279,7 +279,7 @@
             var ch = (ytEmbed ? '<!-- YouTube Video -->\n' + ytEmbed + '\n\n' : '') +
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
                 '<!-- Description -->\n<div class="ycp-desc">\n' + dh + '</div>\n\n' +
-                '<!-- Audio Player -->\n<div class="ycp-audio">\n<iframe title="Libsyn Player" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
+                '<!-- Audio Player -->\n<div class="ycp-audio">\n<iframe title="Embed Player" src="' + eu + '" scrolling="no" allowfullscreen webkitallowfullscreen="true" mozallowfullscreen="true" oallowfullscreen="true" msallowfullscreen="true"></iframe>\n</div>\n\n' +
                 '<!-- CTA -->\n<div class="ycp-cta">\n<h3>Continue Your Journey</h3>\n<p>Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a class="button" href="/collections/all" target="_blank" rel="noopener">Explore Collection</a>\n</div>';
 
             var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
