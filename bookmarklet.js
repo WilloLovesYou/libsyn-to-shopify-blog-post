@@ -203,6 +203,7 @@
             };
 
             var dh = '';
+            var inListGroup = false;
             for (var j = 0; j < dp.length; j++) {
                 // First: convert "Label: URL" lines into linked text (e.g. "💜 Website: https://..." → linked "💜 Website")
                 var line = dp[j].trim();
@@ -236,18 +237,16 @@
                     (/https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed));
                 var nextIsHeader = headerPatterns.test(nextTrimmed);
 
+                var isListItem = isChapterItem || isLinkLine;
+                var nextIsListItem = nextIsChapterItem || nextIsLinkLine;
+
                 if (isHeader) {
                     dh += '<p class="ycp-section-header"><strong>' + line + '</strong></p>\n';
-                } else if (isChapterItem && !nextIsChapterItem) {
-                    dh += line + '<br><br>\n';
-                } else if (isChapterItem || nextIsChapterItem) {
-                    dh += line + '<br>\n';
-                } else if (isLinkLine && (nextIsLinkLine || nextIsHeader)) {
-                    // Single-space link list items
-                    dh += line + '<br>\n';
-                } else if (isLinkLine) {
-                    // Last link in a list — add spacing after
-                    dh += line + '<br><br>\n';
+                } else if (isListItem) {
+                    if (!inListGroup) { dh += '<p>'; inListGroup = true; }
+                    else { dh += '<br>\n'; }
+                    dh += line;
+                    if (!nextIsListItem) { dh += '</p>\n'; inListGroup = false; }
                 } else {
                     dh += '<p>' + line + '</p>\n';
                 }
