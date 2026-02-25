@@ -225,7 +225,7 @@
         var pubDate = '';
         if (pubDateRaw) {
             var pd = new Date(pubDateRaw);
-            if (!isNaN(pd)) pubDate = pd.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            if (!isNaN(pd)) pubDate = pd.getFullYear() + '-' + String(pd.getMonth()+1).padStart(2,'0') + '-' + String(pd.getDate()).padStart(2,'0');
         }
 
         // GUID and artwork
@@ -475,7 +475,7 @@
             if (!ep.hasGuid) warnings.push('No pod.link (GUID not found)');
             var warnHtml = warnings.length ? ' <span class="warn">&#9888;</span>' : '';
 
-            h += '<div class="ep">';
+            h += '<div class="ep" data-ep="' + (ep.episodeNum || k) + '">';
             h += '<div class="ep-hdr">';
             h += '<span class="chk" onclick="markDone(event,this)">&#10003;</span>';
             h += '<span class="ep-title" onclick="toggle(this.parentElement)">' + ep.title + warnHtml + '</span>';
@@ -494,7 +494,7 @@
                 h += '<div style="margin:8px 0;font-size:.8rem;color:#7a7570;"><strong>Published:</strong> ' + ep.pubDate + '</div>';
             }
 
-            h += '<a class="shopify-link" href="https://admin.shopify.com/store/b14b8f-c3/content/articles/new" target="_blank">Open New Shopify Article &rarr;</a>';
+            h += '<a class="shopify-link" href="#" onclick="openShopify();return false;">Open New Shopify Article &rarr;</a>';
 
             h += '<hr class="sep">';
             h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Blog Post: Title</span></div><div class="row"><div class="val" id="f' + k + '_t">' + ep.title + '</div><button class="btn" onclick="cp(\'f' + k + '_t\',this)">Copy</button></div></div>';
@@ -531,9 +531,18 @@
         h += '</div>'; // close wrap
 
         h += '<script>';
+        h += 'var BLOB_URL="https://jsonblob.com/api/jsonBlob/019c930a-e7f4-7ea2-af42-50c26540ac70";';
+        h += 'var doneState={};';
+        h += 'function updateProg(){var n=document.querySelectorAll(".chk.checked").length;document.getElementById("prog").textContent=n+"/' + episodes.length + ' done"}';
+        h += 'function applyState(d){doneState=d||{};document.querySelectorAll(".ep[data-ep]").forEach(function(ep){var num=ep.getAttribute("data-ep");if(d[num]){ep.classList.add("done");ep.querySelector(".chk").classList.add("checked")}else{ep.classList.remove("done");ep.querySelector(".chk").classList.remove("checked")}});updateProg()}';
+        h += 'function loadDone(){fetch(BLOB_URL).then(function(r){return r.json()}).then(applyState).catch(function(){try{applyState(JSON.parse(localStorage.getItem("ycp_batch_done"))||{})}catch(e){}})}';
+        h += 'function saveDone(){var body=JSON.stringify(doneState);try{localStorage.setItem("ycp_batch_done",body)}catch(e){}fetch(BLOB_URL,{method:"PUT",headers:{"Content-Type":"application/json"},body:body}).catch(function(){})}';
         h += 'function cp(id,b){navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){b.textContent="Copied!";b.classList.add("ok");setTimeout(function(){b.textContent="Copy";b.classList.remove("ok")},1200)})}';
         h += 'function toggle(hdr){var body=hdr.nextElementSibling;body.classList.toggle("open");hdr.classList.toggle("open")}';
-        h += 'function markDone(e,chk){e.stopPropagation();chk.classList.toggle("checked");var ep=chk.closest(".ep");ep.classList.toggle("done");var n=document.querySelectorAll(".chk.checked").length;document.getElementById("prog").textContent=n+"/' + episodes.length + ' done"}';
+        h += 'function markDone(e,chk){e.stopPropagation();chk.classList.toggle("checked");var ep=chk.closest(".ep");ep.classList.toggle("done");var num=ep.getAttribute("data-ep");if(chk.classList.contains("checked")){doneState[num]=true}else{delete doneState[num]}saveDone();updateProg()}';
+        h += 'var shopW=' + Math.floor(screen.width * 2 / 3) + ',shopH=' + screen.height + ',shopL=' + Math.floor(screen.width / 3) + ';';
+        h += 'function openShopify(){window.open("https://admin.shopify.com/store/b14b8f-c3/content/articles/new","_blank","width="+shopW+",height="+shopH+",left="+shopL+",top=0,scrollbars=yes")}';
+        h += 'loadDone();';
         h += '<\/script></body></html>';
 
         var w1 = Math.floor(sw / 3), w2 = Math.floor(sw * 2 / 3);
