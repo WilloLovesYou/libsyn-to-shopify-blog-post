@@ -160,14 +160,24 @@
             ? 'https://play.libsyn.com/embed/episode/id/' + itemId + '/height/128/theme/modern/size/standard/thumbnail/yes/custom-color/b88748/time-start/00:00:00/hide-playlist/yes/hide-subscribe/yes/hide-share/yes/font-color/ffffff'
             : '';
 
-        // Extract guest name
-        var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+        // Extract guest name — handle "with Name", "Name: Topic", "Topic: Name"
+        var guestMatch = rawTitle.match(/[Ww]ith\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)/);
+        if (!guestMatch) guestMatch = rawTitle.match(/^#?\d+\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)\s*:/);
+        if (!guestMatch) guestMatch = rawTitle.match(/:\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)\s*$/);
         var guestName = guestMatch ? guestMatch[1] : '';
 
-        // Extract topic
-        var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
-        var topicRaw = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
-        var topic = toTitleCase(topicRaw);
+        // Extract topic — full title minus guest name, parens, and noise
+        var titleBody = rawTitle.replace(/^#?\d+\s*/, '').trim();
+        if (guestName) {
+            var gesc = guestName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            titleBody = titleBody
+                .replace(new RegExp('\\s*[-—]\\s*[Ww]ith\\s+' + gesc + '.*$'), '')
+                .replace(new RegExp('\\s+[Ww]ith\\s+' + gesc + '.*$'), '')
+                .replace(new RegExp('^' + gesc + '\\s*[-:—]\\s*'), '')
+                .replace(new RegExp('\\s*[-:—]\\s*' + gesc + '\\s*$'), '');
+        }
+        titleBody = titleBody.replace(/\s*\([^)]*\)\s*$/, '').replace(/[.!]+$/, '').trim();
+        var topic = toTitleCase(titleBody.substring(0, 60));
 
         // URL handle
         var uhTopicClean = topic.replace(/^#?\d+\s*/, '');
@@ -182,25 +192,25 @@
         }
         var uh = uhFull;
 
-        // SEO Titles
+        // SEO Titles — Option A: topic keywords, Option B: guest + topic
         var seoSuffix1 = ' | Your Colorful Path Podcast';
         var seoSuffix2 = ' | Your Colorful Path';
-        var seoPrefixRaw = guestName ? (guestName + ' on ' + topic) : topic;
-        var seoPrefix = toTitleCase(seoPrefixRaw);
+        var seoPrefix1 = toTitleCase(topic);
+        var seoPrefix2 = guestName ? toTitleCase(guestName + ': ' + topic) : toTitleCase(topic);
 
-        var seoTitle1 = seoPrefix + seoSuffix1;
+        var seoTitle1 = seoPrefix1 + seoSuffix1;
         if (seoTitle1.length > 65) {
             var maxP1 = 65 - seoSuffix1.length;
-            var trunc1 = seoPrefix.substring(0, maxP1);
+            var trunc1 = seoPrefix1.substring(0, maxP1);
             var ls1 = trunc1.lastIndexOf(' ');
             if (ls1 > 15) trunc1 = trunc1.substring(0, ls1);
             seoTitle1 = trunc1 + seoSuffix1;
         }
 
-        var seoTitle2 = seoPrefix + seoSuffix2;
+        var seoTitle2 = seoPrefix2 + seoSuffix2;
         if (seoTitle2.length > 65) {
             var maxP2 = 65 - seoSuffix2.length;
-            var trunc2 = seoPrefix.substring(0, maxP2);
+            var trunc2 = seoPrefix2.substring(0, maxP2);
             var ls2 = trunc2.lastIndexOf(' ');
             if (ls2 > 15) trunc2 = trunc2.substring(0, ls2);
             seoTitle2 = trunc2 + seoSuffix2;
@@ -496,8 +506,8 @@
             h += '<hr class="sep"><div class="sec">Search Engine Listing</div>';
             h += '<p class="note" style="margin-top:-8px;">Double-check these for accuracy before publishing</p>';
 
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option A</span><span class="shp">Edit SEO</span></div><p class="note" style="margin-bottom:8px;">Select all & delete existing text first, then paste</p><div class="row"><div class="val" id="f' + k + '_s1">' + ep.seoTitle1 + '</div><button class="btn" onclick="cp(\'f' + k + '_s1\',this)">Copy</button></div></div>';
-            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option B</span><span class="shp">More keywords</span></div><div class="row"><div class="val" id="f' + k + '_s2">' + ep.seoTitle2 + '</div><button class="btn" onclick="cp(\'f' + k + '_s2\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option A</span><span class="shp">Topic keywords</span></div><p class="note" style="margin-bottom:8px;">Select all & delete existing text first, then paste</p><div class="row"><div class="val" id="f' + k + '_s1">' + ep.seoTitle1 + '</div><button class="btn" onclick="cp(\'f' + k + '_s1\',this)">Copy</button></div></div>';
+            h += '<div class="fld"><div class="fld-top"><span class="lbl">Page Title (SEO) - Option B</span><span class="shp">Guest + keywords</span></div><div class="row"><div class="val" id="f' + k + '_s2">' + ep.seoTitle2 + '</div><button class="btn" onclick="cp(\'f' + k + '_s2\',this)">Copy</button></div></div>';
             h += '<div class="fld"><div class="fld-top"><span class="lbl">Meta Description</span><span class="shp">Edit SEO</span></div><div class="row"><div class="val" id="f' + k + '_md">' + ep.metaDesc + '</div><button class="btn" onclick="cp(\'f' + k + '_md\',this)">Copy</button></div></div>';
             h += '<div class="fld"><div class="fld-top"><span class="lbl">URL Handle</span><span class="shp">Edit SEO</span></div><p class="note" style="margin-bottom:8px;">Select all & delete existing text first, then paste</p><div class="row"><div class="val" id="f' + k + '_uh">' + ep.urlHandle + '</div><button class="btn" onclick="cp(\'f' + k + '_uh\',this)">Copy</button></div></div>';
 
