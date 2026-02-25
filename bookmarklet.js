@@ -45,14 +45,24 @@
     // Build embed URL
     var eu = 'https://play.libsyn.com/embed/episode/id/' + id + '/height/128/theme/modern/size/standard/thumbnail/yes/custom-color/b88748/time-start/00:00:00/hide-playlist/yes/hide-subscribe/yes/hide-share/yes/font-color/ffffff';
 
-    // Extract guest name
-    var guestMatch = rawTitle.match(/[Ww]ith\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)/);
+    // Extract guest name — handle "with Name", "Name: Topic", "Topic: Name"
+    var guestMatch = rawTitle.match(/[Ww]ith\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)/);
+    if (!guestMatch) guestMatch = rawTitle.match(/^#?\d+\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)\s*:/);
+    if (!guestMatch) guestMatch = rawTitle.match(/:\s+((?:Dr\.?\s+)?[A-Z][a-z]+(?:\s+(?:Mc|Mac)?[A-Z][a-z]+)+)\s*$/);
     var guestName = guestMatch ? guestMatch[1] : '';
 
-    // Extract topic
-    var topicMatch = rawTitle.match(/^#?\d+\s+([^:?]+)/);
-    var topicRaw = topicMatch ? topicMatch[1].trim().substring(0, 50) : rawTitle.replace(/^#?\d+\s*/, '').substring(0, 50);
-    var topic = toTitleCase(topicRaw);
+    // Extract topic — full title minus guest name, parens, and noise
+    var titleBody = rawTitle.replace(/^#?\d+\s*/, '').trim();
+    if (guestName) {
+        var gesc = guestName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        titleBody = titleBody
+            .replace(new RegExp('\\s*[-—]\\s*[Ww]ith\\s+' + gesc + '.*$'), '')
+            .replace(new RegExp('\\s+[Ww]ith\\s+' + gesc + '.*$'), '')
+            .replace(new RegExp('^' + gesc + '\\s*[-:—]\\s*'), '')
+            .replace(new RegExp('\\s*[-:—]\\s*' + gesc + '\\s*$'), '');
+    }
+    titleBody = titleBody.replace(/\s*\([^)]*\)\s*$/, '').replace(/[.!]+$/, '').trim();
+    var topic = toTitleCase(titleBody.substring(0, 60));
 
     // URL handle
     var uhTopicClean = topic.replace(/^#?\d+\s*/, '');
@@ -67,25 +77,25 @@
     }
     var uh = uhFull;
 
-    // SEO Titles - two options
+    // SEO Titles — Option A: topic keywords, Option B: guest + topic
     var seoSuffix1 = ' | Your Colorful Path Podcast';
     var seoSuffix2 = ' | Your Colorful Path';
-    var seoPrefixRaw = guestName ? (guestName + ' on ' + topic) : topic;
-    var seoPrefix = toTitleCase(seoPrefixRaw);
+    var seoPrefix1 = toTitleCase(topic);
+    var seoPrefix2 = guestName ? toTitleCase(guestName + ': ' + topic) : toTitleCase(topic);
 
-    var seoTitle1 = seoPrefix + seoSuffix1;
+    var seoTitle1 = seoPrefix1 + seoSuffix1;
     if (seoTitle1.length > 65) {
         var maxP1 = 65 - seoSuffix1.length;
-        var trunc1 = seoPrefix.substring(0, maxP1);
+        var trunc1 = seoPrefix1.substring(0, maxP1);
         var ls1 = trunc1.lastIndexOf(' ');
         if (ls1 > 15) trunc1 = trunc1.substring(0, ls1);
         seoTitle1 = trunc1 + seoSuffix1;
     }
 
-    var seoTitle2 = seoPrefix + seoSuffix2;
+    var seoTitle2 = seoPrefix2 + seoSuffix2;
     if (seoTitle2.length > 65) {
         var maxP2 = 65 - seoSuffix2.length;
-        var trunc2 = seoPrefix.substring(0, maxP2);
+        var trunc2 = seoPrefix2.substring(0, maxP2);
         var ls2 = trunc2.lastIndexOf(' ');
         if (ls2 > 15) trunc2 = trunc2.substring(0, ls2);
         seoTitle2 = trunc2 + seoSuffix2;
@@ -107,8 +117,14 @@
         var rssData = feeds[0];
         var ytData = feeds[1];
 
-        // Build YouTube episode lookup: episode number → video ID
-        var ytLookup = {};
+        // Hardcoded YouTube video IDs (reliable base — channel feed only returns 15 most recent)
+        var ytLookup = {
+            '2': '5VWYFZUH1QE', '3': '9kknhzyPrvc', '5': 'u9RcXcCKCUw',
+            '8': 'ZxUZnejMZR0', '11': 'CGZIgR7oVX0', '15': 'fK5amaUMdc4',
+            '21': '3uo549sW7Bg', '22': 'l7z7e_GxIC4', '23': '8ELBM924p9c',
+            '24': 'G23uyAEXaek', '25': '5wYzw4Bvfl4', '26': 'qcGUIdIg-3E'
+        };
+        // Override with channel feed for freshness (new uploads auto-detected)
         if (ytData) {
             var ytParser = new DOMParser();
             var ytXml = ytParser.parseFromString(ytData, 'text/xml');
@@ -128,6 +144,7 @@
             var episodeGuid = '';
             var episodeArtwork = '';
             var rssDescription = '';
+            var pubDate = '';
 
             // Get show-level artwork as fallback
             var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
@@ -150,6 +167,11 @@
                     }
                     var descEl = items[i].querySelector('description');
                     if (descEl) rssDescription = descEl.textContent.trim();
+                    var pubDateEl = items[i].querySelector('pubDate');
+                    if (pubDateEl) {
+                        var pd = new Date(pubDateEl.textContent.trim());
+                        if (!isNaN(pd)) pubDate = pd.getFullYear() + '-' + String(pd.getMonth()+1).padStart(2,'0') + '-' + String(pd.getDate()).padStart(2,'0');
+                    }
                     break;
                 }
             }
@@ -159,13 +181,20 @@
 
             // Convert HTML description to plain text, preserving line breaks
             var rawHtml = rssDescription;
-            // Replace block/line-breaking elements with newlines BEFORE stripping tags
             var d = rawHtml
+                // Preserve links: extract href before stripping tags
+                .replace(/<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, function(m, url, text) {
+                    var t = text.replace(/<[^>]+>/g, '').trim();
+                    var urlClean = url.replace(/^https?:\/\//, '');
+                    var tClean = t.replace(/^https?:\/\//, '');
+                    if (!t || tClean === urlClean) return url;
+                    return t + ': ' + url;
+                })
                 .replace(/<br\s*\/?>/gi, '\n')
                 .replace(/<\/p>/gi, '\n\n')
                 .replace(/<\/div>/gi, '\n')
                 .replace(/<\/li>/gi, '\n')
-                .replace(/<[^>]+>/g, '')  // strip remaining HTML tags
+                .replace(/<[^>]+>/g, '')
                 .replace(/&amp;/g, '&')
                 .replace(/&lt;/g, '<')
                 .replace(/&gt;/g, '>')
@@ -255,6 +284,7 @@
                         .replace(/(https?:\/\/[^\s<]+)/g, function(m) { return '<a href="' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
                         .replace(/(?<![\/\w"'])(www\.[^\s<]+)/gi, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
                         .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+                        .replace(/(?<![\/\w"'.>])([Dd]ivine[Aa]muleto\.com(?:\/[^\s<]*)?)/g, function(m) { return '<a href="https://www.' + m + '">' + m + '</a>'; })
                         .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
                 }
                 // Link "Your Colorful Path" to podcast page (only if not already inside a link)
@@ -320,6 +350,9 @@
 
             var h = '<!DOCTYPE html><html><head><title>Ready for Shopify</title><style>' + css + '</style></head><body>';
             h += '<div class="hdr"><h1>✨ Copy to Shopify</h1></div><div class="wrap">';
+            if (pubDate) {
+                h += '<div style="margin:0 0 14px;font-size:.8rem;color:#7a7570;display:flex;align-items:center;gap:8px;"><strong>Published:</strong> <span id="fpd">' + pubDate + '</span><button class="btn" style="padding:3px 8px;font-size:.65rem;" onclick="cp(\'fpd\',this)">Copy</button></div>';
+            }
             h += '<div class="fld"><div class="fld-top"><span class="lbl">Title</span><span class="shp">Blog Post: Title</span></div><div class="row"><div class="val" id="f1">' + t + '</div><button class="btn" onclick="cp(\'f1\',this)">Copy</button></div></div>';
             h += '<div class="fld"><div class="fld-top"><span class="lbl">Content (HTML)</span><span class="shp">Blog Post: Content (click &lt;/&gt; first)</span></div><div class="row"><div class="val code" id="f2">' + esc + '</div><button class="btn" onclick="cp(\'f2\',this)">Copy</button></div></div>';
             if (encodedGuid) {
@@ -353,7 +386,7 @@
             popup.document.close();
 
             setTimeout(function() {
-                window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0');
+                window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0,scrollbars=yes');
             }, 300);
         })
         .catch(function(error) {
