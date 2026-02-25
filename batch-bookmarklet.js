@@ -209,6 +209,15 @@
         // Alt text
         var altText = 'Your Colorful Path Podcast Episode ' + en + ' with Charu Boeckel';
 
+        // Publish date
+        var pubDateEl = rssItem.querySelector('pubDate');
+        var pubDateRaw = pubDateEl ? pubDateEl.textContent.trim() : '';
+        var pubDate = '';
+        if (pubDateRaw) {
+            var pd = new Date(pubDateRaw);
+            if (!isNaN(pd)) pubDate = pd.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
         // GUID and artwork
         var guidEl = rssItem.querySelector('guid');
         var episodeGuid = guidEl ? guidEl.textContent.trim() : '';
@@ -300,6 +309,7 @@
                     .replace(/(https?:\/\/[^\s<]+)/g, function(m) { return '<a href="' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
                     .replace(/(?<![\/\w"'])(www\.[^\s<]+)/gi, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
                     .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+                    .replace(/(?<![\/\w"'.>])([Dd]ivine[Aa]muleto\.com(?:\/[^\s<]*)?)/g, function(m) { return '<a href="https://www.' + m + '">' + m + '</a>'; })
                     .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
             }
             line = line.replace(/(?<![">])Your Colorful Path(?![^<]*<\/a>)/g, '<a href="/your-colorful-path-podcast">Your Colorful Path</a>');
@@ -364,6 +374,7 @@
             urlHandle: uh,
             altText: altText,
             artwork: episodeArtwork,
+            pubDate: pubDate,
             hasEmbed: !!eu,
             hasGuid: !!encodedGuid
         };
@@ -387,8 +398,22 @@
         var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
         var showArtwork = showImage ? showImage.textContent.trim() : '';
 
-        // Build YouTube episode lookup from channel feed
-        var ytLookup = {};
+        // Hardcoded YouTube video IDs (reliable base — channel feed only returns 15 most recent)
+        var ytLookup = {
+            '2': '5VWYFZUH1QE',
+            '3': '9kknhzyPrvc',
+            '5': 'u9RcXcCKCUw',
+            '8': 'ZxUZnejMZR0',
+            '11': 'CGZIgR7oVX0',
+            '15': 'fK5amaUMdc4',
+            '21': '3uo549sW7Bg',
+            '22': 'l7z7e_GxIC4',
+            '23': '8ELBM924p9c',
+            '24': 'G23uyAEXaek',
+            '25': '5wYzw4Bvfl4',
+            '26': 'qcGUIdIg-3E'
+        };
+        // Override with channel feed for freshness (new uploads auto-detected)
         if (ytData) {
             var ytXml = parser.parseFromString(ytData, 'text/xml');
             var ytEntries = ytXml.querySelectorAll('entry');
@@ -443,12 +468,19 @@
             h += '<div class="ep">';
             h += '<div class="ep-hdr" onclick="toggle(this)">';
             h += '<span class="ep-title">' + ep.title + warnHtml + '</span>';
+            h += '<span style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px;">';
+            if (ep.pubDate) { h += '<span style="font-size:.65rem;color:#9a9590;">' + ep.pubDate + '</span>'; }
             h += '<span class="ep-num">EP ' + (ep.episodeNum || '?') + '</span>';
+            h += '</span>';
             h += '</div>';
             h += '<div class="ep-body" id="ep' + k + '">';
 
             if (warnings.length) {
                 h += '<p class="note warn">' + warnings.join(' &bull; ') + '</p>';
+            }
+
+            if (ep.pubDate) {
+                h += '<div style="margin:8px 0;font-size:.8rem;color:#7a7570;"><strong>Published:</strong> ' + ep.pubDate + '</div>';
             }
 
             h += '<a class="shopify-link" href="https://admin.shopify.com/store/b14b8f-c3/content/articles/new" target="_blank">Open New Shopify Article &rarr;</a>';
