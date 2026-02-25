@@ -491,7 +491,7 @@
             }
 
             if (ep.pubDate) {
-                h += '<div style="margin:8px 0;font-size:.8rem;color:#7a7570;"><strong>Published:</strong> ' + ep.pubDate + '</div>';
+                h += '<div style="margin:8px 0;font-size:.8rem;color:#7a7570;display:flex;align-items:center;gap:8px;"><strong>Published:</strong> <span id="f' + k + '_pd">' + ep.pubDate + '</span><button class="btn" style="padding:3px 8px;font-size:.65rem;" onclick="cp(\'f' + k + '_pd\',this)">Copy</button></div>';
             }
 
             h += '<a class="shopify-link" href="#" onclick="openShopify();return false;">Open New Shopify Article &rarr;</a>';
