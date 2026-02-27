@@ -259,9 +259,9 @@ Instagram: @handle
     // ── Charu's standard host bio (auto-appended) ──
     var HOST_BIO = 'Charu Boeckel is the founder of Divine Amuleto, a sacred geometry fine jewelry line, and host of Your Colorful Path \u2014 a podcast to connect you to your human and divine self, turning life from an obstacle course into a colorful, aligned path.';
     var HOST_LINKS = [
-        { emoji: '\uD83D\uDC9C', label: 'DivineAmuleto.com', url: 'https://www.divineamuleto.com' },
-        { emoji: '\uD83D\uDCF8', label: 'Instagram', url: 'https://www.instagram.com/divineamuleto', handle: '@divineamuleto' },
-        { emoji: '\uD83C\uDFA7', label: 'Instagram', url: 'https://www.instagram.com/yourcolorfulpath', handle: '@yourcolorfulpath' }
+        { emoji: '\uD83D\uDC8E', label: 'DivineAmuleto.com', url: 'https://www.divineamuleto.com' },
+        { emoji: '\uD83D\uDCE9', label: 'IG', url: 'https://www.instagram.com/divineamuleto', handle: '@divineamuleto' },
+        { emoji: '\uD83C\uDF99\uFE0F', label: 'IG', url: 'https://www.instagram.com/yourcolorfulpath', handle: '@yourcolorfulpath' }
     ];
 
     // ── Section header patterns (matches bookmarklet.js) ──
@@ -376,7 +376,8 @@ Instagram: @handle
             var igMatch = url.match(/instagram\.com\/([a-zA-Z0-9_.]+)\/?$/);
             if (igMatch) {
                 var ep = extractEmoji(label);
-                return ep.emoji + '<a href="' + url + '" target="_blank" rel="noopener">Instagram: @' + igMatch[1] + '</a>';
+                var igEmoji = ep.emoji || '\uD83D\uDCF8 '; // 📸 default for IG
+                return igEmoji + '<a href="' + url + '" target="_blank" rel="noopener">IG: @' + igMatch[1] + '</a>';
             }
             var ep = extractEmoji(label);
             var displayText = ep.text;
@@ -394,11 +395,21 @@ Instagram: @handle
             var label = handleMatch[1].trim();
             var handle = handleMatch[2];
             var ep = extractEmoji(label);
-            return ep.emoji + '<a href="https://www.instagram.com/' + handle + '" target="_blank" rel="noopener">Instagram: @' + handle + '</a>';
+            var igEmoji = ep.emoji || '\uD83D\uDCF8 '; // 📸 default for IG
+            return igEmoji + '<a href="https://www.instagram.com/' + handle + '" target="_blank" rel="noopener">IG: @' + handle + '</a>';
         }
 
         // Otherwise just linkify bare URLs
         return text.replace(URL_RE, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    }
+
+    // Smart emoji assignment for guest links based on URL/label content
+    function guessLinkEmoji(line) {
+        var lower = line.toLowerCase();
+        if (/instagram\.com|@\w/.test(lower) || /\binstagram\b|\big\b/.test(lower)) return '\uD83D\uDCF8'; // 📸
+        if (/linkedin\.com|\blinkedin\b/.test(lower)) return '\uD83D\uDCBC'; // 💼
+        if (/\bbook\b|\border\b|\bamazon\b|\bbarnes\b/.test(lower)) return '\uD83D\uDCD8'; // 📘
+        return '\uD83C\uDF10'; // 🌐 default — any website/link
     }
 
     function extractEmoji(text) {
@@ -447,7 +458,7 @@ Instagram: @handle
                 if (inBullets) html += '</ul>\n';
             }
             else if (sec.type === 'chapters') {
-                html += '\n<p><strong>CHAPTERS</strong></p>\n<p>';
+                html += '\n<p><strong>\u23F1\uFE0F CHAPTERS</strong></p>\n<p>';
                 for (var j = 0; j < sec.lines.length; j++) {
                     var line = sec.lines[j];
                     // Normalize timestamp at start of line
@@ -461,9 +472,13 @@ Instagram: @handle
                 html += '</p>\n';
             }
             else if (sec.type === 'guest') {
-                var headerText = guestName ? 'ABOUT ' + guestName.toUpperCase() : (sec.header || 'ABOUT THE GUEST').toUpperCase();
-                // Clean header — remove emoji prefix noise
-                headerText = headerText.replace(/^[^a-zA-Z]+/, '').trim();
+                var cleanName = guestName || '';
+                if (!cleanName) {
+                    // Try to extract from header
+                    var gm = (sec.header || '').match(/about\s+(.+)/i);
+                    if (gm) cleanName = gm[1].replace(/[:!]/g, '').trim();
+                }
+                var headerText = cleanName ? '\uD83D\uDC64 ABOUT OUR GUEST, ' + cleanName.toUpperCase() : '\uD83D\uDC64 ABOUT OUR GUEST';
                 html += '\n<p><strong>' + headerText + '</strong></p>\n';
                 var bioLines = [];
                 var linkLines = [];
@@ -479,15 +494,16 @@ Instagram: @handle
                 for (var j = 0; j < bioLines.length; j++) {
                     html += '<p>' + linkify(bioLines[j]) + '</p>\n';
                 }
-                // Links as grouped block
+                // Links as grouped block — always assign correct emoji
                 if (linkLines.length > 0) {
                     html += '<p>';
                     for (var j = 0; j < linkLines.length; j++) {
                         var line = linkLines[j];
-                        // Add emoji prefix if missing
-                        if (!EMOJI_RE.test(line)) {
-                            line = '\uD83D\uDD17 ' + line; // 🔗
+                        // Strip any existing emoji prefix so we can assign the right one
+                        if (EMOJI_RE.test(line)) {
+                            line = line.replace(/^[^\x20-\x7E]+\s*/, '');
                         }
+                        line = guessLinkEmoji(line) + ' ' + line;
                         if (j > 0) html += '<br>\n';
                         html += linkify(line);
                     }
@@ -536,8 +552,9 @@ Instagram: @handle
         }
 
         // Always append host section
-        html += '\n<p><strong>ABOUT YOUR HOST</strong></p>\n';
-        html += '<p>' + HOST_BIO + '</p>\n';
+        html += '\n<p><strong>\u2728 ABOUT YOUR HOST, CHARU</strong></p>\n';
+        html += '<p>Charu Boeckel is the host of Your Colorful Path and a professional jewelry designer. After a life-changing transformation through meditation, Charu now shares conversations and fine jewelry to help people connect to both their human and divine selves, turning life from an obstacle course into a colorful, aligned path.</p>\n';
+        html += '<p>Charu\u2019s jewelry line is Divine Amuleto, a high-frequency, sacred geometry jewelry line designed as conscious jewelry reminders; pieces you wear to stay aware of your state, return to your center, and live with more intention.</p>\n';
         html += '<p>';
         for (var j = 0; j < HOST_LINKS.length; j++) {
             var lk = HOST_LINKS[j];
@@ -546,6 +563,10 @@ Instagram: @handle
             html += lk.emoji + ' <a href="' + lk.url + '" target="_blank" rel="noopener">' + display + '</a>';
         }
         html += '</p>\n';
+
+        // Always append subscribe section
+        html += '\n<p><strong>\u2705 SUBSCRIBE</strong></p>\n';
+        html += '<p>If this episode supported you, please subscribe to the channel. It helps more people find these conversations, and it keeps <a href="https://www.divineamuleto.com/blogs/your-colorful-path-podcast">Your Colorful Path</a> growing.</p>\n';
 
         return html.trim();
     }
@@ -688,9 +709,10 @@ Instagram: @handle
             '\n' +
             'ABOUT CHANOA INEZ\n' +
             'Chanoa Inez is the author of Dream On: How to Create the New Life of Your Dreams After Upheaval or Loss and the creator of MAGNETIZE YOUR PERSONAL BRAND.\n' +
-            '\uD83D\uDC9C Website: https://www.chanoainez.com\n' +
-            '\uD83D\uDCF8 Instagram: @chanoainez\n' +
-            '\uD83D\uDD17 LinkedIn: https://www.linkedin.com/in/chanoainez';
+            'Website: https://www.chanoainez.com\n' +
+            'Instagram: @chanoainez\n' +
+            'LinkedIn: https://www.linkedin.com/in/chanoainez\n' +
+            'Order Dream On: https://www.chanoainez.com/book';
         formatNotes();
     }
     </script>
