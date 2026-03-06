@@ -214,7 +214,7 @@
             </div>
             <div id="formFields" style="display:none;">
                 <div class="field">
-                    <label>Episode</label>
+                    <label>Episode <span style="font-weight:400;font-size:0.8rem;color:#9a9590;">(from Libsyn)</span></label>
                     <select id="episodeSelect" onchange="onEpisodeSelect()">
                         <option value="">Select an episode...</option>
                     </select>
@@ -226,7 +226,7 @@
                 <div class="field">
                     <label>Blog Post URL</label>
                     <div class="link-row">
-                        <input type="text" id="blogUrl" placeholder="https://www.divineamuleto.com/blogs/your-colorful-path-podcast/..." oninput="updateBlogTestLink(this.value);generateEmail()">
+                        <input type="text" id="blogUrl" placeholder="https://www.divineamuleto.com/blogs/your-colorful-path-podcast/..." oninput="updateTestLink('blogUrl','blogTestLink');generateEmail()">
                         <span class="status status-none" id="blogStatus">--</span>
                         <a id="blogTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
@@ -235,38 +235,42 @@
                 <div class="field">
                     <label>Apple Podcasts</label>
                     <div class="link-row">
-                        <input type="text" id="appleUrl" placeholder="Auto-filled from Apple Podcasts..." oninput="generateEmail()">
+                        <input type="text" id="appleUrl" placeholder="Auto-filled from Apple Podcasts..." oninput="updateTestLink('appleUrl','appleTestLink');generateEmail()">
                         <span class="status status-none" id="appleStatus">--</span>
+                        <a id="appleTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
                 </div>
                 <div class="field">
                     <label>Spotify</label>
                     <div class="link-row">
-                        <input type="text" id="spotifyUrl" placeholder="Paste Spotify episode link here (optional)" oninput="generateEmail()">
+                        <input type="text" id="spotifyUrl" placeholder="Paste Spotify episode link here (optional)" oninput="updateTestLink('spotifyUrl','spotifyTestLink');generateEmail()">
                         <span class="status status-none" id="spotifyStatus">--</span>
+                        <a id="spotifyTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
                     <p class="hint">Auto-filled from Spotify. If missing, open Spotify &rarr; Share &rarr; Copy Link</p>
                 </div>
                 <div class="field">
                     <label>YouTube</label>
                     <div class="link-row">
-                        <input type="text" id="youtubeUrl" placeholder="Auto-filled from description or lookup table..." oninput="generateEmail()">
+                        <input type="text" id="youtubeUrl" placeholder="Auto-filled from description or lookup table..." oninput="updateTestLink('youtubeUrl','youtubeTestLink');generateEmail()">
                         <span class="status status-none" id="youtubeStatus">--</span>
+                        <a id="youtubeTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
                     <p class="hint">Auto-filled from Libsyn description or YouTube lookup table</p>
                 </div>
                 <div class="field">
                     <label>Listen on All Platforms (pod.link)</label>
                     <div class="link-row">
-                        <input type="text" id="podlinkUrl" placeholder="Auto-filled..." oninput="generateEmail()">
+                        <input type="text" id="podlinkUrl" placeholder="Auto-filled..." oninput="updateTestLink('podlinkUrl','podlinkTestLink');generateEmail()">
                         <span class="status status-none" id="podlinkStatus">--</span>
+                        <a id="podlinkTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel" id="outputPanel" style="display:none;">
-            <h2>Header in Email</h2>
+            <h2>Header in Email <span style="font-weight:400;font-size:0.85rem;color:#9a9590;">title from Libsyn</span></h2>
             <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1.25rem;">
                 <div id="subjectLine" style="flex:1;font-weight:700;font-size:1rem;letter-spacing:0.02em;padding:0.6rem 0.75rem;background:#faf8f5;border:2px solid #e8e3de;border-radius:8px;"></div>
                 <button class="btn btn-outline" onclick="copySubject()" id="copySubjectBtn" style="white-space:nowrap;">Copy</button>
@@ -490,12 +494,14 @@
             el.classList.remove('auto-filled');
             updateStatus(statusId, type || 'none');
         }
-        // Update blog test link
-        if (inputId === 'blogUrl') updateBlogTestLink(value);
+        // Update test links
+        var testLinks = {blogUrl:'blogTestLink', appleUrl:'appleTestLink', spotifyUrl:'spotifyTestLink', youtubeUrl:'youtubeTestLink', podlinkUrl:'podlinkTestLink'};
+        if (testLinks[inputId]) updateTestLink(inputId, testLinks[inputId]);
     }
 
-    function updateBlogTestLink(url) {
-        var link = document.getElementById('blogTestLink');
+    function updateTestLink(inputId, linkId) {
+        var url = document.getElementById(inputId).value;
+        var link = document.getElementById(linkId);
         if (url) {
             link.href = url;
             link.style.display = '';
