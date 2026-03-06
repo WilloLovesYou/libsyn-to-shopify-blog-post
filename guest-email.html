@@ -487,23 +487,25 @@
 
         var bulletList = bullets.length > 0
             ? '<ul>' + bullets.join('') + '</ul>'
-            : '<p>[links will appear as you fill in the fields above]</p>';
+            : '[links will appear as you fill in the fields above]';
 
         var blogLink = blogUrl
             ? '<a href="' + blogUrl + '" target="_blank" rel="noopener">' + blogUrl + '</a>'
             : '[blog post URL]';
 
-        var html = '<p>Hello ' + guestName + ',</p>' +
-            '<p>I am thrilled to share that our episode has gone LIVE, worldwide, on Apple, Spotify, YouTube, and more!</p>' +
-            '<p>I\'ve published a blog post featuring our episode here on my website:<br>' + blogLink + '</p>' +
-            '<p>You\'re welcome to share that link, and here are a few more direct links to our episode:</p>' +
-            bulletList +
-            '<p><strong>Please share &amp; tag me using these social media handles:</strong><br>' +
+        var BR = '<br><br>';
+
+        var html = 'Hello ' + guestName + ',' + BR +
+            'I am thrilled to share that our episode has gone LIVE, worldwide, on Apple, Spotify, YouTube, and more!' + BR +
+            'I\'ve published a blog post featuring our episode here on my website:<br>' + blogLink + BR +
+            'You\'re welcome to share that link, and here are a few more direct links to our episode:' +
+            bulletList + BR +
+            '<strong>Please share &amp; tag me using these social media handles:</strong><br>' +
             'Instagram: <a href="https://www.instagram.com/YourColorfulPath" target="_blank" rel="noopener">@YourColorfulPath</a><br>' +
             'Instagram: <a href="https://www.instagram.com/DivineAmuleto" target="_blank" rel="noopener">@DivineAmuleto</a><br>' +
-            'YouTube: <a href="https://www.youtube.com/@YourColorfulPathwithCharu" target="_blank" rel="noopener">@YourColorfulPathwithCharu</a></p>' +
-            '<p>I will be sending Collaboration Requests on Instagram for cross-promotion, so please be on the lookout for those to approve them.</p>' +
-            '<p>Thank you for being you and for contributing to the <a href="' + PODLINK_BASE + '" target="_blank" rel="noopener">Your Colorful Path Podcast</a>!</p>';
+            'YouTube: <a href="https://www.youtube.com/@YourColorfulPathwithCharu" target="_blank" rel="noopener">@YourColorfulPathwithCharu</a>' + BR +
+            'I will be sending Collaboration Requests on Instagram for cross-promotion, so please be on the lookout for those to approve them.' + BR +
+            'Thank you for being you and for contributing to the <a href="' + PODLINK_BASE + '" target="_blank" rel="noopener">Your Colorful Path Podcast</a>!';
 
         // Show output
         document.getElementById('outputPanel').style.display = '';
