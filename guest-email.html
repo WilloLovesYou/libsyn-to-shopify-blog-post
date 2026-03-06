@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Email — Your Colorful Path</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2d2a26;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 400; }
+        .header p { color: #9a9590; font-size: 0.9rem; margin-top: 0.25rem; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .panel h2 .badge {
+            font-size: 0.65rem;
+            background: #f0ebe6;
+            color: #9a9590;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 400;
+        }
+        .field {
+            margin-bottom: 1rem;
+        }
+        .field label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #7a7570;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 2px solid #e8e3de;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #2d2a26;
+            background: #faf8f5;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #d49633;
+        }
+        .field .hint {
+            font-size: 0.75rem;
+            color: #b5afa8;
+            margin-top: 0.25rem;
+        }
+        .field input.auto-filled {
+            background: #f0faf0;
+            border-color: #b8dab8;
+        }
+        .link-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .link-row input { flex: 1; }
+        .link-row .status {
+            font-size: 0.75rem;
+            white-space: nowrap;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .status-found { background: #e8f5e9; color: #2e7d32; }
+        .status-manual { background: #fff3e0; color: #e65100; }
+        .status-none { background: #f5f5f5; color: #999; }
+        .btn-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.6rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #d49633 0%, #c47d28 100%);
+            color: white;
+        }
+        .btn-primary:hover { background: linear-gradient(135deg, #c47d28 0%, #b06d1e 100%); }
+        .btn-secondary {
+            background: #2d2a26;
+            color: white;
+        }
+        .btn-secondary:hover { background: #3d3a36; }
+        .btn-outline {
+            background: white;
+            color: #2d2a26;
+            border: 2px solid #e8e3de;
+        }
+        .btn-outline:hover { border-color: #d49633; color: #d49633; }
+        .btn.ok {
+            background: #2d8a2d !important;
+            border-color: #2d8a2d !important;
+            color: white !important;
+        }
+        .email-preview {
+            border: 2px solid #e8e3de;
+            border-radius: 8px;
+            padding: 1.25rem;
+            min-height: 200px;
+            background: white;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .email-preview a {
+            color: #d49633;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #9a9590;
+        }
+        .loading .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e8e3de;
+            border-top-color: #d49633;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .tip {
+            font-size: 0.8rem;
+            color: #9a9590;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Guest Episode Email</h1>
+        <p>Generate a "your episode is live!" email with all the right links</p>
+    </header>
+
+    <div class="container">
+        <div class="panel">
+            <h2>Episode Details</h2>
+            <div id="loadingState" class="loading">
+                <span class="spinner"></span> Loading episodes from Apple Podcasts &amp; RSS feed...
+            </div>
+            <div id="formFields" style="display:none;">
+                <div class="field">
+                    <label>Episode</label>
+                    <select id="episodeSelect" onchange="onEpisodeSelect()">
+                        <option value="">Select an episode...</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Guest's First Name</label>
+                    <input type="text" id="guestName" placeholder="e.g. Sam (or leave blank for 'friend')" oninput="generateEmail()">
+                </div>
+                <div class="field">
+                    <label>Blog Post URL</label>
+                    <div class="link-row">
+                        <input type="text" id="blogUrl" placeholder="https://www.divineamuleto.com/blogs/your-colorful-path-podcast/..." oninput="generateEmail()">
+                        <span class="status status-none" id="blogStatus">--</span>
+                    </div>
+                    <p class="hint">Auto-generated from episode title. Edit if needed.</p>
+                </div>
+                <div class="field">
+                    <label>Apple Podcasts</label>
+                    <div class="link-row">
+                        <input type="text" id="appleUrl" placeholder="Auto-filled from Apple Podcasts..." oninput="generateEmail()">
+                        <span class="status status-none" id="appleStatus">--</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Spotify</label>
+                    <div class="link-row">
+                        <input type="text" id="spotifyUrl" placeholder="Paste Spotify episode link here (optional)" oninput="generateEmail()">
+                        <span class="status status-none" id="spotifyStatus">--</span>
+                    </div>
+                    <p class="hint">Open Spotify, find the episode, Share &rarr; Copy Link</p>
+                </div>
+                <div class="field">
+                    <label>YouTube</label>
+                    <div class="link-row">
+                        <input type="text" id="youtubeUrl" placeholder="Auto-filled from episode description..." oninput="generateEmail()">
+                        <span class="status status-none" id="youtubeStatus">--</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Listen on All Platforms (pod.link)</label>
+                    <div class="link-row">
+                        <input type="text" id="podlinkUrl" placeholder="Auto-filled..." oninput="generateEmail()">
+                        <span class="status status-none" id="podlinkStatus">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel" id="outputPanel" style="display:none;">
+            <h2>
+                Email Preview
+                <span class="badge" id="outputBadge">ready to copy</span>
+            </h2>
+            <div class="email-preview" id="emailPreview"></div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="copyEmail()" id="copyBtn">Copy Email Text</button>
+                <button class="btn btn-outline" onclick="copyAsRichText()" id="copyRichBtn">Copy as Rich Text (for Gmail)</button>
+            </div>
+            <p class="tip">Use "Copy as Rich Text" to paste into Gmail with clickable links.</p>
+        </div>
+    </div>
+
+    <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
+        <p>Part of the <a href="index.html" style="color:#d49633;text-decoration:none;">Libsyn &rarr; Shopify</a> toolkit</p>
+        <p>&copy; 2026 Willo&amp;Co LLC</p>
+    </footer>
+
+    <script>
+    var APPLE_SHOW_ID = '1790327657';
+    var RSS_FEED = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
+    var BLOG_BASE = 'https://www.divineamuleto.com/blogs/your-colorful-path-podcast/';
+    var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
+
+    var episodes = []; // merged data from iTunes + RSS
+
+    // ── Fetch episode data on page load ──
+    (function init() {
+        Promise.all([
+            fetch('https://itunes.apple.com/lookup?id=' + APPLE_SHOW_ID + '&entity=podcastEpisode&limit=200')
+                .then(function(r) { return r.json(); }),
+            fetch(RSS_FEED)
+                .then(function(r) { return r.text(); })
+        ]).then(function(results) {
+            var itunesData = results[0];
+            var rssText = results[1];
+
+            // Parse iTunes episodes
+            var itunesEps = {};
+            for (var i = 0; i < itunesData.results.length; i++) {
+                var item = itunesData.results[i];
+                if (item.wrapperType !== 'podcastEpisode') continue;
+                // Key by episode GUID for matching
+                itunesEps[item.episodeGuid] = {
+                    appleUrl: item.trackViewUrl,
+                    title: item.trackName
+                };
+            }
+
+            // Parse RSS feed
+            var parser = new DOMParser();
+            var xml = parser.parseFromString(rssText, 'text/xml');
+            var items = xml.querySelectorAll('item');
+
+            for (var i = 0; i < items.length; i++) {
+                var titleEl = items[i].querySelector('title');
+                var title = titleEl ? titleEl.textContent.trim() : '';
+                var guidEl = items[i].querySelector('guid');
+                var guid = guidEl ? guidEl.textContent.trim() : '';
+                var descEl = items[i].querySelector('description');
+                var desc = descEl ? descEl.textContent.trim() : '';
+
+                // Extract episode number
+                var epMatch = title.match(/^#?(\d+)\s/);
+                var epNum = epMatch ? parseInt(epMatch[1]) : 0;
+
+                // Extract YouTube URL from description
+                var ytMatch = desc.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+                var youtubeUrl = ytMatch ? 'https://www.youtube.com/watch?v=' + ytMatch[1] : '';
+
+                // Build blog post URL handle
+                var handle = buildHandle(title, epNum);
+
+                // Get Apple URL from iTunes data
+                var appleUrl = '';
+                if (itunesEps[guid]) {
+                    appleUrl = itunesEps[guid].appleUrl;
+                }
+
+                // Build pod.link per-episode URL
+                var encodedGuid = guid ? btoa(guid) : '';
+                var podlinkUrl = encodedGuid ? (PODLINK_BASE + '/episode/' + encodedGuid) : PODLINK_BASE;
+
+                episodes.push({
+                    title: title,
+                    epNum: epNum,
+                    guid: guid,
+                    appleUrl: appleUrl,
+                    youtubeUrl: youtubeUrl,
+                    blogUrl: BLOG_BASE + handle,
+                    podlinkUrl: podlinkUrl,
+                    description: desc
+                });
+            }
+
+            // Sort by episode number descending (newest first)
+            episodes.sort(function(a, b) { return b.epNum - a.epNum; });
+
+            // Populate dropdown
+            var sel = document.getElementById('episodeSelect');
+            for (var i = 0; i < episodes.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = episodes[i].title;
+                sel.appendChild(opt);
+            }
+
+            // Show form, hide loading
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('formFields').style.display = '';
+
+        }).catch(function(err) {
+            document.getElementById('loadingState').innerHTML =
+                '<span style="color:#c0392b;">Error loading episodes: ' + err.message + '</span><br>' +
+                '<span style="font-size:0.85rem;">Check your internet connection and try refreshing.</span>';
+        });
+    })();
+
+    function buildHandle(title, epNum) {
+        // Remove episode number prefix like "#28 " or "28 "
+        var clean = title.replace(/^#?\d+\s+/, '');
+        // Remove "with" and everything after a period
+        clean = clean.replace(/\.\s.*$/, '');
+        // Slugify
+        var slug = clean.toLowerCase()
+            .replace(/['']/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+        return 'e' + epNum + '-' + slug;
+    }
+
+    function onEpisodeSelect() {
+        var sel = document.getElementById('episodeSelect');
+        if (!sel.value) return;
+        var ep = episodes[parseInt(sel.value)];
+
+        // Fill fields
+        setField('blogUrl', ep.blogUrl, 'blogStatus', 'auto');
+        setField('appleUrl', ep.appleUrl, 'appleStatus', ep.appleUrl ? 'auto' : 'none');
+        setField('youtubeUrl', ep.youtubeUrl, 'youtubeStatus', ep.youtubeUrl ? 'auto' : 'none');
+        setField('podlinkUrl', ep.podlinkUrl, 'podlinkStatus', 'auto');
+
+        // Clear spotify (always manual)
+        document.getElementById('spotifyUrl').value = '';
+        document.getElementById('spotifyUrl').classList.remove('auto-filled');
+        updateStatus('spotifyStatus', 'none');
+
+        // Try to guess guest name from title (after "with" or "With")
+        var nameMatch = ep.title.match(/[Ww]ith\s+(.+?)$/);
+        if (nameMatch) {
+            var fullName = nameMatch[1].replace(/[.!?]$/, '').trim();
+            var firstName = fullName.split(/\s+/)[0];
+            document.getElementById('guestName').value = firstName;
+        } else {
+            document.getElementById('guestName').value = '';
+        }
+
+        generateEmail();
+    }
+
+    function setField(inputId, value, statusId, type) {
+        var el = document.getElementById(inputId);
+        el.value = value || '';
+        if (value && type === 'auto') {
+            el.classList.add('auto-filled');
+            updateStatus(statusId, 'found');
+        } else {
+            el.classList.remove('auto-filled');
+            updateStatus(statusId, type || 'none');
+        }
+    }
+
+    function updateStatus(id, type) {
+        var el = document.getElementById(id);
+        if (type === 'found') {
+            el.className = 'status status-found';
+            el.textContent = 'Auto-filled';
+        } else if (type === 'manual') {
+            el.className = 'status status-manual';
+            el.textContent = 'Manual';
+        } else {
+            el.className = 'status status-none';
+            el.textContent = '--';
+        }
+    }
+
+    function generateEmail() {
+        var guestName = document.getElementById('guestName').value.trim() || 'friend';
+        var blogUrl = document.getElementById('blogUrl').value.trim();
+        var appleUrl = document.getElementById('appleUrl').value.trim();
+        var spotifyUrl = document.getElementById('spotifyUrl').value.trim();
+        var youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+        var podlinkUrl = document.getElementById('podlinkUrl').value.trim();
+
+        // Update manual status for spotify if filled
+        if (spotifyUrl) {
+            document.getElementById('spotifyUrl').classList.add('auto-filled');
+            updateStatus('spotifyStatus', 'manual');
+        }
+
+        // Build platform links section
+        var platformLinks = [];
+        if (appleUrl) platformLinks.push({ label: 'Apple Podcasts', url: appleUrl });
+        if (spotifyUrl) platformLinks.push({ label: 'Spotify', url: spotifyUrl });
+        if (youtubeUrl) platformLinks.push({ label: 'YouTube', url: youtubeUrl });
+
+        var platformSection = '';
+        for (var i = 0; i < platformLinks.length; i++) {
+            platformSection += '\n' + platformLinks[i].label + ': ' + platformLinks[i].url;
+        }
+        if (podlinkUrl) {
+            platformSection += '\nMore platforms: ' + podlinkUrl;
+        }
+
+        var email = 'Hello ' + guestName + ',\n\n' +
+            'I am thrilled to share that our episode has gone LIVE worldwide on Apple, Spotify, YouTube, and more!\n\n' +
+            'I\'ve published our episode here on my website:\n' +
+            (blogUrl || '[blog post URL]') + '\n\n' +
+            'You\'re welcome to share that link, or here are a few direct links to top platforms:' +
+            (platformSection || '\n[links will appear as you fill in the fields above]') + '\n\n' +
+            'Please share & tag me using these social media handles:\n' +
+            'Instagram: @YourColorfulPath\n' +
+            'Instagram: @DivineAmuleto\n' +
+            'YouTube: @YourColorfulPathwithCharu\n\n' +
+            'I will be sending over Instagram Reel collaboration requests for promo, so please look out for them.\n\n' +
+            'Thank you for being you and for contributing to the Your Colorful Path Podcast!';
+
+        // Show output
+        document.getElementById('outputPanel').style.display = '';
+        document.getElementById('emailPreview').textContent = email;
+    }
+
+    function copyEmail() {
+        var text = document.getElementById('emailPreview').textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            flashButton('copyBtn', 'Copied!');
+        });
+    }
+
+    function copyAsRichText() {
+        var text = document.getElementById('emailPreview').textContent;
+
+        // Convert URLs to clickable links for rich text
+        var html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>')
+            .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');
+
+        var blob = new Blob([html], { type: 'text/html' });
+        var plainBlob = new Blob([text], { type: 'text/plain' });
+        var item = new ClipboardItem({
+            'text/html': blob,
+            'text/plain': plainBlob
+        });
+        navigator.clipboard.write([item]).then(function() {
+            flashButton('copyRichBtn', 'Copied!');
+        });
+    }
+
+    function flashButton(id, msg) {
+        var btn = document.getElementById(id);
+        var orig = btn.textContent;
+        btn.textContent = msg;
+        btn.classList.add('ok');
+        setTimeout(function() {
+            btn.textContent = orig;
+            btn.classList.remove('ok');
+        }, 1500);
+    }
+    </script>
+</body>
+</html>
