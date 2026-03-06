@@ -16,11 +16,11 @@
         .header {
             background: #2d2a26;
             color: white;
-            padding: 2.5rem 2rem 1.5rem;
+            padding: 2rem;
             text-align: center;
         }
-        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.25rem; }
-        .header p { color: #9a9590; }
+        .header h1 { font-size: 1.5rem; font-weight: 400; }
+        .header p { color: #9a9590; font-size: 0.9rem; margin-top: 0.25rem; }
         .nav {
             display: flex;
             justify-content: center;
@@ -90,8 +90,8 @@
         <p>Libsyn → Shopify blog post generator</p>
     </header>
     <nav class="nav">
-        <a href="#bookmarklet" class="active">Blog Post Bookmarklet</a>
         <a href="index.html">Libsyn &amp; YouTube Show Notes Formatter</a>
+        <a href="#bookmarklet" class="active">Blog Post Bookmarklet</a>
         <a href="guest-email.html">Guest Email Generator</a>
     </nav>
     
@@ -145,7 +145,7 @@
         </div>
 
         <div class="card">
-            <h2 style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="var c=document.getElementById('batchContent');var a=document.getElementById('batchArrow');if(c.style.display==='none'){c.style.display='';a.textContent='▾';}else{c.style.display='none';a.textContent='▸';}">
+            <h2 style="cursor:pointer;display:flex;align-items:center;gap:0.5rem;" onclick="var c=document.getElementById('batchContent');var a=document.getElementById('batchArrow');if(c.style.display==='none'){c.style.display='';a.textContent='▾';}else{c.style.display='none';a.textContent='▸';}">
                 <span id="batchArrow" style="font-size:0.9rem;color:#9a9590;">▸</span> Batch Mode (All Episodes)
             </h2>
             <div id="batchContent" style="display:none;">
@@ -189,7 +189,7 @@
     </div>
 
     <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
-        <p>Created by Willo Sana for<br>Charu &bull; Divine Amuleto &bull; Your Colorful Path Podcast</p>
+        <p>Created by Willo Sana for Charu<br>Divine Amuleto &bull; Your Colorful Path Podcast</p>
         <p>&copy; 2026 Willo&amp;Co LLC &bull; <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;text-decoration:none;">EvolveYourGenius.com</a></p>
     </footer>
 </body>
