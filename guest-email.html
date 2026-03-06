@@ -397,8 +397,13 @@
     function buildHandle(title, epNum) {
         // Remove episode number prefix like "#28 " or "28 "
         var clean = title.replace(/^#?\d+\s+/, '');
-        // Remove "with" and everything after a period
+        // Remove trailing period content
         clean = clean.replace(/\.\s.*$/, '');
+        // Extract guest name: "Topic with Guest Name" → "guest-name-topic"
+        var withMatch = clean.match(/^(.+?)\s+[Ww]ith\s+(.+?)$/);
+        if (withMatch) {
+            clean = withMatch[2] + ' ' + withMatch[1];
+        }
         // Slugify
         var slug = clean.toLowerCase()
             .replace(/['']/g, '')
