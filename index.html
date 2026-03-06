@@ -89,9 +89,9 @@
         <p>Tools for publishing, formatting, and sharing episodes</p>
     </header>
     <nav class="nav">
-        <a href="#bookmarklet" class="active">Bookmarklet</a>
-        <a href="show-notes-formatter.html">Show Notes Formatter</a>
-        <a href="guest-email.html">Guest Email</a>
+        <a href="#bookmarklet" class="active">Blog Post Bookmarklet</a>
+        <a href="show-notes-formatter.html">Libsyn & YouTube Show Notes Formatter</a>
+        <a href="guest-email.html">Guest Email Generator</a>
     </nav>
     
     <div class="container">
@@ -129,6 +129,21 @@
         </div>
         
         <div class="card">
+            <h2>What It Generates</h2>
+            <ul style="margin-left: 1.25rem; color: #5a5550;">
+                <li>Title with "Episode #" prefix</li>
+                <li>SEO-optimized page title and meta description</li>
+                <li>Clean URL handle (e.g., e26-guest-name-topic)</li>
+                <li>YouTube video embed (if found in description)</li>
+                <li>"Listen on Your Favorite App" button linking to pod.link</li>
+                <li>Episode artwork URL (full-size from RSS feed)</li>
+                <li>Properly formatted description with chapter list</li>
+                <li>Libsyn audio player</li>
+                <li>Divine Amuleto branded CTA</li>
+            </ul>
+        </div>
+
+        <div class="card">
             <h2 style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="var c=document.getElementById('batchContent');var a=document.getElementById('batchArrow');if(c.style.display==='none'){c.style.display='';a.textContent='▾';}else{c.style.display='none';a.textContent='▸';}">
                 Batch Mode (All Episodes) <span id="batchArrow" style="font-size:0.9rem;color:#9a9590;">▸</span>
             </h2>
@@ -146,22 +161,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="card">
-            <h2>What It Generates</h2>
-            <ul style="margin-left: 1.25rem; color: #5a5550;">
-                <li>Title with "Episode #" prefix</li>
-                <li>SEO-optimized page title and meta description</li>
-                <li>Clean URL handle (e.g., e26-guest-name-topic)</li>
-                <li>YouTube video embed (if found in description)</li>
-                <li>"Listen on Your Favorite App" button linking to pod.link</li>
-                <li>Episode artwork URL (full-size from RSS feed)</li>
-                <li>Properly formatted description with chapter list</li>
-                <li>Libsyn audio player</li>
-                <li>Divine Amuleto branded CTA</li>
-            </ul>
-        </div>
-
 
         <script>
         function convertYt() {

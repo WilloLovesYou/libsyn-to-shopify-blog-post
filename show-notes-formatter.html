@@ -20,6 +20,29 @@
         }
         .header h1 { font-size: 1.5rem; font-weight: 400; }
         .header p { color: #9a9590; font-size: 0.9rem; margin-top: 0.25rem; }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #2d2a26;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #faf8f5;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #4a4540;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active {
+            background: #d49633;
+            border-color: #d49633;
+            color: white;
+        }
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -203,6 +226,11 @@
         <h1>Show Notes Formatter</h1>
         <p>Paste your draft, get consistently formatted show notes for Libsyn</p>
     </header>
+    <nav class="nav">
+        <a href="index.html">Blog Post Bookmarklet</a>
+        <a href="show-notes-formatter.html" class="active">Libsyn & YouTube Show Notes Formatter</a>
+        <a href="guest-email.html">Guest Email Generator</a>
+    </nav>
 
     <div class="container">
         <div class="panel">
