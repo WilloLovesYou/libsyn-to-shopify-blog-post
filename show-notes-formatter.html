@@ -458,7 +458,7 @@ Instagram: @handle
                 if (inBullets) html += '</ul>\n';
             }
             else if (sec.type === 'chapters') {
-                html += '\n<p><strong>\u23F1\uFE0F CHAPTERS</strong></p>\n<p>';
+                html += '\n<p>&nbsp;</p>\n<p><b>\u23F1\uFE0F CHAPTERS</b></p>\n<p>';
                 for (var j = 0; j < sec.lines.length; j++) {
                     var line = sec.lines[j];
                     // Normalize timestamp at start of line
@@ -479,7 +479,7 @@ Instagram: @handle
                     if (gm) cleanName = gm[1].replace(/[:!]/g, '').trim();
                 }
                 var headerText = cleanName ? '\uD83D\uDC64 ABOUT OUR GUEST, ' + cleanName.toUpperCase() : '\uD83D\uDC64 ABOUT OUR GUEST';
-                html += '\n<p><strong>' + headerText + '</strong></p>\n';
+                html += '\n<p>&nbsp;</p>\n<p><b>' + headerText + '</b></p>\n';
                 var bioLines = [];
                 var linkLines = [];
                 for (var j = 0; j < sec.lines.length; j++) {
@@ -512,7 +512,7 @@ Instagram: @handle
             }
             else if (sec.type === 'takeaways') {
                 var headerText = (sec.header || 'KEY TAKEAWAYS').toUpperCase().replace(/^[^a-zA-Z]+/, '').trim();
-                html += '\n<p><strong>' + headerText + '</strong></p>\n';
+                html += '\n<p>&nbsp;</p>\n<p><b>' + headerText + '</b></p>\n';
                 var inBullets = false;
                 for (var j = 0; j < sec.lines.length; j++) {
                     var line = sec.lines[j];
@@ -528,7 +528,7 @@ Instagram: @handle
             }
             else if (sec.type === 'links') {
                 var headerText = (sec.header || 'LINKS').toUpperCase().replace(/^[^a-zA-Z]+/, '').trim();
-                html += '\n<p><strong>' + headerText + '</strong></p>\n<p>';
+                html += '\n<p>&nbsp;</p>\n<p><b>' + headerText + '</b></p>\n<p>';
                 for (var j = 0; j < sec.lines.length; j++) {
                     var line = sec.lines[j];
                     if (!EMOJI_RE.test(line)) line = '\uD83D\uDD17 ' + line;
@@ -543,7 +543,7 @@ Instagram: @handle
             else {
                 // Generic section with header
                 if (sec.header) {
-                    html += '\n<p><strong>' + sec.header.toUpperCase().replace(/^[^a-zA-Z]+/, '').trim() + '</strong></p>\n';
+                    html += '\n<p>&nbsp;</p>\n<p><b>' + sec.header.toUpperCase().replace(/^[^a-zA-Z]+/, '').trim() + '</b></p>\n';
                 }
                 for (var j = 0; j < sec.lines.length; j++) {
                     html += '<p>' + linkify(sec.lines[j]) + '</p>\n';
@@ -552,7 +552,7 @@ Instagram: @handle
         }
 
         // Always append host section
-        html += '\n<p><strong>\u2728 ABOUT YOUR HOST, CHARU</strong></p>\n';
+        html += '\n<p>&nbsp;</p>\n<p><b>\u2728 ABOUT YOUR HOST, CHARU</b></p>\n';
         html += '<p>Charu Boeckel is the host of Your Colorful Path and a professional jewelry designer. After a life-changing transformation through meditation, Charu now shares conversations and fine jewelry to help people connect to both their human and divine selves, turning life from an obstacle course into a colorful, aligned path.</p>\n';
         html += '<p>Charu\u2019s jewelry line is Divine Amuleto, a high-frequency, sacred geometry jewelry line designed as conscious jewelry reminders; pieces you wear to stay aware of your state, return to your center, and live with more intention.</p>\n';
         html += '<p>';
@@ -565,7 +565,7 @@ Instagram: @handle
         html += '</p>\n';
 
         // Always append subscribe section
-        html += '\n<p><strong>\u2705 SUBSCRIBE</strong></p>\n';
+        html += '\n<p>&nbsp;</p>\n<p><b>\u2705 SUBSCRIBE</b></p>\n';
         html += '<p>If this episode supported you, please subscribe to the channel. It helps more people find these conversations, and it keeps <a href="https://www.divineamuleto.com/blogs/your-colorful-path-podcast">Your Colorful Path</a> growing.</p>\n';
 
         return html.trim();
