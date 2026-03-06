@@ -181,7 +181,7 @@
         <div class="panel">
             <h2>Episode Details</h2>
             <div id="loadingState" class="loading">
-                <span class="spinner"></span> Loading episodes from Apple Podcasts, Spotify &amp; RSS feed...
+                <span class="spinner"></span> Loading episodes from Apple Podcasts, Spotify, YouTube &amp; RSS feed...
             </div>
             <div id="formFields" style="display:none;">
                 <div class="field">
@@ -220,9 +220,10 @@
                 <div class="field">
                     <label>YouTube</label>
                     <div class="link-row">
-                        <input type="text" id="youtubeUrl" placeholder="Auto-filled from episode description..." oninput="generateEmail()">
+                        <input type="text" id="youtubeUrl" placeholder="Auto-filled from description or lookup table..." oninput="generateEmail()">
                         <span class="status status-none" id="youtubeStatus">--</span>
                     </div>
+                    <p class="hint">Auto-filled from Libsyn description or YouTube lookup table</p>
                 </div>
                 <div class="field">
                     <label>Listen on All Platforms (pod.link)</label>
@@ -258,6 +259,18 @@
     var RSS_FEED = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
     var BLOG_BASE = 'https://www.divineamuleto.com/blogs/your-colorful-path-podcast/';
     var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
+
+    // YouTube video IDs — add new episodes here as they drop
+    // Get IDs from: https://www.youtube.com/@YourColorfulpathwithCharu
+    var YOUTUBE_EPISODES = {
+        28: 'wifMp3a7uac',
+        27: 'tzQETETsjx4',
+        25: '5wYzw4Bvfl4',
+        24: 'G23uyAEXaek',
+        23: '8ELBM924p9c',
+        22: 'l7z7e_GxIC4',
+        21: '3uo549sW7Bg'
+    };
 
     // Spotify episode IDs — add new episodes here as they drop
     // Get IDs from: https://open.spotify.com/show/1x2HAt12L7urPdjPOiUbtj
@@ -317,9 +330,11 @@
                 var epMatch = title.match(/^#?(\d+)\s/);
                 var epNum = epMatch ? parseInt(epMatch[1]) : 0;
 
-                // Extract YouTube URL from description
+                // Extract YouTube URL from description, fall back to lookup table
                 var ytMatch = desc.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-                var youtubeUrl = ytMatch ? 'https://www.youtube.com/watch?v=' + ytMatch[1] : '';
+                var ytVideoId = YOUTUBE_EPISODES[epNum];
+                var youtubeUrl = ytMatch ? 'https://www.youtube.com/watch?v=' + ytMatch[1]
+                    : ytVideoId ? 'https://www.youtube.com/watch?v=' + ytVideoId : '';
 
                 // Build blog post URL handle
                 var handle = buildHandle(title, epNum);
