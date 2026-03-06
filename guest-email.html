@@ -446,12 +446,6 @@
         var youtubeUrl = document.getElementById('youtubeUrl').value.trim();
         var podlinkUrl = document.getElementById('podlinkUrl').value.trim();
 
-        // Update manual status for spotify if filled
-        if (spotifyUrl) {
-            document.getElementById('spotifyUrl').classList.add('auto-filled');
-            updateStatus('spotifyStatus', 'manual');
-        }
-
         // Build platform links section
         var platformLinks = [];
         if (appleUrl) platformLinks.push({ label: 'Apple Podcasts', url: appleUrl });
