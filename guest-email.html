@@ -241,10 +241,10 @@
             </h2>
             <div class="email-preview" id="emailPreview"></div>
             <div class="btn-row">
-                <button class="btn btn-secondary" onclick="copyEmail()" id="copyBtn">Copy Email Text</button>
-                <button class="btn btn-outline" onclick="copyAsRichText()" id="copyRichBtn">Copy as Rich Text (for Gmail)</button>
+                <button class="btn btn-secondary" onclick="copyAsRichText()" id="copyRichBtn">Copy Rich Text (for Flodesk / Gmail)</button>
+                <button class="btn btn-outline" onclick="copyEmail()" id="copyBtn">Copy Plain Text</button>
             </div>
-            <p class="tip">Use "Copy as Rich Text" to paste into Gmail with clickable links.</p>
+            <p class="tip">Use "Copy Rich Text" to paste into Flodesk or Gmail with clickable links.</p>
         </div>
     </div>
 
@@ -446,58 +446,54 @@
         var youtubeUrl = document.getElementById('youtubeUrl').value.trim();
         var podlinkUrl = document.getElementById('podlinkUrl').value.trim();
 
-        // Build platform links section
+        // Build platform links
         var platformLinks = [];
         if (appleUrl) platformLinks.push({ label: 'Apple Podcasts', url: appleUrl });
         if (spotifyUrl) platformLinks.push({ label: 'Spotify', url: spotifyUrl });
         if (youtubeUrl) platformLinks.push({ label: 'YouTube', url: youtubeUrl });
 
-        var platformSection = '';
+        var platformHtml = '';
         for (var i = 0; i < platformLinks.length; i++) {
-            platformSection += '\n' + platformLinks[i].label + ': ' + platformLinks[i].url;
+            platformHtml += '<br>' + platformLinks[i].label + ': <a href="' + platformLinks[i].url + '" target="_blank" rel="noopener">' + platformLinks[i].url + '</a>';
         }
         if (podlinkUrl) {
-            platformSection += '\nMore platforms: ' + podlinkUrl;
+            platformHtml += '<br>More platforms: <a href="' + podlinkUrl + '" target="_blank" rel="noopener">' + podlinkUrl + '</a>';
         }
 
-        var email = 'Hello ' + guestName + ',\n\n' +
-            'I am thrilled to share that our episode has gone LIVE worldwide on Apple, Spotify, YouTube, and more!\n\n' +
-            'I\'ve published our episode here on my website:\n' +
-            (blogUrl || '[blog post URL]') + '\n\n' +
-            'You\'re welcome to share that link, or here are a few direct links to top platforms:' +
-            (platformSection || '\n[links will appear as you fill in the fields above]') + '\n\n' +
-            'Please share & tag me using these social media handles:\n' +
-            'Instagram: @YourColorfulPath\n' +
-            'Instagram: @DivineAmuleto\n' +
-            'YouTube: @YourColorfulPathwithCharu\n\n' +
-            'I will be sending over Instagram Reel collaboration requests for promo, so please look out for them.\n\n' +
-            'Thank you for being you and for contributing to the Your Colorful Path Podcast!';
+        var blogLink = blogUrl
+            ? '<a href="' + blogUrl + '" target="_blank" rel="noopener">' + blogUrl + '</a>'
+            : '[blog post URL]';
+
+        var html = '<p>Hello ' + guestName + ',</p>' +
+            '<p>I am thrilled to share that our episode has gone LIVE worldwide on Apple, Spotify, YouTube, and more!</p>' +
+            '<p>I\'ve published our episode here on my website:<br>' + blogLink + '</p>' +
+            '<p>You\'re welcome to share that link, or here are a few direct links to top platforms:' +
+            (platformHtml || '<br>[links will appear as you fill in the fields above]') + '</p>' +
+            '<p>Please share &amp; tag me using these social media handles:<br>' +
+            'Instagram: @YourColorfulPath<br>' +
+            'Instagram: @DivineAmuleto<br>' +
+            'YouTube: @YourColorfulPathwithCharu</p>' +
+            '<p>I will be sending over Instagram Reel collaboration requests for promo, so please look out for them.</p>' +
+            '<p>Thank you for being you and for contributing to the Your Colorful Path Podcast!</p>';
 
         // Show output
         document.getElementById('outputPanel').style.display = '';
-        document.getElementById('emailPreview').textContent = email;
+        document.getElementById('emailPreview').innerHTML = html;
     }
 
     function copyEmail() {
-        var text = document.getElementById('emailPreview').textContent;
+        var text = document.getElementById('emailPreview').innerText;
         navigator.clipboard.writeText(text).then(function() {
             flashButton('copyBtn', 'Copied!');
         });
     }
 
     function copyAsRichText() {
-        var text = document.getElementById('emailPreview').textContent;
-
-        // Convert URLs to clickable links for rich text
-        var html = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\n/g, '<br>')
-            .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1">$1</a>');
-
+        var preview = document.getElementById('emailPreview');
+        var html = preview.innerHTML;
+        var plain = preview.innerText;
         var blob = new Blob([html], { type: 'text/html' });
-        var plainBlob = new Blob([text], { type: 'text/plain' });
+        var plainBlob = new Blob([plain], { type: 'text/plain' });
         var item = new ClipboardItem({
             'text/html': blob,
             'text/plain': plainBlob
