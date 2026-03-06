@@ -264,7 +264,8 @@ Instagram: @handle
                 <code>Website: https://...</code> → 🌐 &nbsp;
                 <code>Instagram: @handle</code> → 📸 &nbsp;
                 <code>LinkedIn: https://...</code> → 💼 &nbsp;
-                <code>Book: https://...</code> → 📘</p>
+                <code>Book: https://...</code> → 📘 &nbsp;
+                <code>YouTube: @handle</code> → ▶️</p>
                 <p style="color:#7a7570;margin-top:0.5rem;"><b>Auto-added for you:</b> Host bio + links, Subscribe CTA</p>
             </div>
         </div>
@@ -440,7 +441,19 @@ Instagram: @handle
             var label = handleMatch[1].trim();
             var handle = handleMatch[2];
             var ep = extractEmoji(label);
-            var igEmoji = ep.emoji || '\uD83D\uDCF8 '; // 📸 default for IG
+            var labelLower = label.toLowerCase();
+            // YouTube handle
+            if (/youtube|yt/i.test(labelLower)) {
+                var ytEmoji = ep.emoji || '\u25B6\uFE0F '; // ▶️
+                return ytEmoji + '<a href="https://www.youtube.com/@' + handle + '" target="_blank" rel="noopener">YouTube: @' + handle + '</a>';
+            }
+            // TikTok handle
+            if (/tiktok|tik tok/i.test(labelLower)) {
+                var ttEmoji = ep.emoji || '\uD83C\uDFB5 '; // 🎵
+                return ttEmoji + '<a href="https://www.tiktok.com/@' + handle + '" target="_blank" rel="noopener">TikTok: @' + handle + '</a>';
+            }
+            // Default: Instagram
+            var igEmoji = ep.emoji || '\uD83D\uDCF8 '; // 📸
             return igEmoji + '<a href="https://www.instagram.com/' + handle + '" target="_blank" rel="noopener">IG: @' + handle + '</a>';
         }
 
@@ -451,7 +464,9 @@ Instagram: @handle
     // Smart emoji assignment for guest links based on URL/label content
     function guessLinkEmoji(line) {
         var lower = line.toLowerCase();
-        if (/instagram\.com|@\w/.test(lower) || /\binstagram\b|\big\b/.test(lower)) return '\uD83D\uDCF8'; // 📸
+        if (/youtube\.com|\byoutube\b|\byt\b/.test(lower)) return '\u25B6\uFE0F'; // ▶️
+        if (/tiktok\.com|\btiktok\b|\btik tok\b/.test(lower)) return '\uD83C\uDFB5'; // 🎵
+        if (/instagram\.com|\binstagram\b|\big\b/.test(lower) || /^[^:]*:\s*@/.test(lower)) return '\uD83D\uDCF8'; // 📸
         if (/linkedin\.com|\blinkedin\b/.test(lower)) return '\uD83D\uDCBC'; // 💼
         if (/\bbook\b|\border\b|\bamazon\b|\bbarnes\b/.test(lower)) return '\uD83D\uDCD8'; // 📘
         return '\uD83C\uDF10'; // 🌐 default — any website/link
