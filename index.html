@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Colorful Path - Libsyn to Shopify</title>
+    <title>Your Colorful Path — Podcast Toolkit</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -15,11 +15,34 @@
         .header {
             background: #2d2a26;
             color: white;
-            padding: 2.5rem 2rem;
+            padding: 2.5rem 2rem 1.5rem;
             text-align: center;
         }
-        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.5rem; }
+        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.25rem; }
         .header p { color: #9a9590; }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #2d2a26;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #faf8f5;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #4a4540;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active {
+            background: #d49633;
+            border-color: #d49633;
+            color: white;
+        }
         .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
         .card {
             background: white;
@@ -62,13 +85,18 @@
 </head>
 <body>
     <header class="header">
-        <h1>Libsyn → Shopify Blog Post</h1>
-        <p>One-click podcast episode extraction for Your Colorful Path</p>
+        <h1>Your Colorful Path — Podcast Toolkit</h1>
+        <p>Tools for publishing, formatting, and sharing episodes</p>
     </header>
+    <nav class="nav">
+        <a href="#bookmarklet" class="active">Bookmarklet</a>
+        <a href="show-notes-formatter.html">Show Notes Formatter</a>
+        <a href="guest-email.html">Guest Email</a>
+    </nav>
     
     <div class="container">
-        <div class="card">
-            <h2>Your Bookmarklet - New & Improved 2/24/26</h2>
+        <div class="card" id="bookmarklet">
+            <h2>Libsyn → Shopify Bookmarklet</h2>
             <p>Drag this button to your bookmarks bar. You'll only have to do this once as it can now be updated automagically!</p>
             <div class="bookmarklet-box">
                 <a class="bookmarklet-link" href="javascript:(function(){var s=document.createElement('script');s.src='https://willolovesyou.github.io/libsyn-to-shopify-blog-post/bookmarklet.js?v='+Date.now();document.body.appendChild(s);})()">📋 Libsyn → Shopify Blog Post</a>
@@ -134,21 +162,6 @@
             </ul>
         </div>
 
-        <div class="card">
-            <h2>Show Notes Formatter</h2>
-            <p>Paste your draft show notes, get consistently formatted descriptions for Libsyn. Auto-fills host bio and links.</p>
-            <div style="margin-top:1rem;text-align:center;">
-                <a href="show-notes-formatter.html" style="display:inline-block;background:linear-gradient(135deg, #d49633 0%, #c47d28 100%);color:white;padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Show Notes Formatter</a>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Guest Episode Email</h2>
-            <p>Generate a "your episode is live!" email with Apple, Spotify, YouTube, and blog post links auto-filled.</p>
-            <div style="margin-top:1rem;text-align:center;">
-                <a href="guest-email.html" style="display:inline-block;background:linear-gradient(135deg, #d49633 0%, #c47d28 100%);color:white;padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Guest Email Generator</a>
-            </div>
-        </div>
 
         <script>
         function convertYt() {
